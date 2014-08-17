@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace McDonaldsWorkflow.Models
 {
-    internal class Cashier : ICashier
+    public class Cashier : Employee, ICashier
     {
         #region Properties
 

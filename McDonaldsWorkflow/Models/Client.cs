@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace McDonaldsWorkflow.Models
 {
@@ -12,7 +8,7 @@ namespace McDonaldsWorkflow.Models
 
         public bool EndOfDay { get; set; }
 
-        public Dictionary<MealsEnum, int> Order { get; set; }
+        public Dictionary<MealTypes, int> Order { get; set; }
 
         #endregion
 

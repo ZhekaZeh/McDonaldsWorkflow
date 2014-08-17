@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Threading;
 
 namespace McDonaldsWorkflow.Models
 {
@@ -11,5 +7,7 @@ namespace McDonaldsWorkflow.Models
         int Takings { get; set; }
 
         int LineCount { get; set; }
+
+        ManualResetEvent WaitHandle { get; }
     }
 }

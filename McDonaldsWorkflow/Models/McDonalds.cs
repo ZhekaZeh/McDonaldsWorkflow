@@ -1,39 +1,45 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using McDonaldsWorkflow.Models.Interfaces;
 
 namespace McDonaldsWorkflow.Models
 {
-    class McDonalds
+    public class McDonalds : ICompany
     {
         #region Private fields
 
         private static McDonalds _instance;
+        private List<ICashier> _cashiers;
+        private List<ICook> _cooks;
+        private readonly object _lockObj;
+        private bool _isEndOfDay;
 
         #endregion
 
         #region Constructor
 
-        private McDonalds() { }
+        private McDonalds()
+        {
+            _isEndOfDay = false;
+            _lockObj = new object();
+        }
 
         #endregion
 
         #region Properties
-
-        public List<ICashier> Cashiers { get; set; }
-
-        public List<ICook> Cooks { get; set; }
-
-        public McDonalds Instance 
+        
+        public static ICompany Instance 
         {
             get
             {
-                if (_instance != null) return _instance;
-                else return _instance = new McDonalds();
+                if (_instance != null)
+                {
+                    return _instance;
+                }
+
+                return _instance = new McDonalds();
             }
         }
+
         #endregion
 
         #region Public Methods
@@ -46,6 +52,33 @@ namespace McDonaldsWorkflow.Models
 
         }
 
+        /// <summary>
+        /// Ends the day.
+        /// </summary>
+        public void EndTheDay()
+        {
+            _isEndOfDay = true;
+            //foreach (var cook in _cooks)
+            //{
+            //    cook.WaitHandle.Set();
+            //}
+        }
+
         #endregion
+
+        #region ICompany implementation
+
+        public bool IsEndOfDay {
+            get
+            {
+                lock (_lockObj)
+                {
+                    return _isEndOfDay;
+                }
+            }
+        }
+
+        #endregion
+        
     }
 }

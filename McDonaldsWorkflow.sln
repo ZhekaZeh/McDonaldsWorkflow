@@ -5,6 +5,8 @@ VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "McDonaldsWorkflow", "McDonaldsWorkflow\McDonaldsWorkflow.csproj", "{6250FCA1-F324-4EC8-9236-DADEE6128030}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExampleTestProject", "ExampleTestProject\ExampleTestProject.csproj", "{3E9B090E-6937-4607-831B-88B4CCBE7CDB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{6250FCA1-F324-4EC8-9236-DADEE6128030}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6250FCA1-F324-4EC8-9236-DADEE6128030}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6250FCA1-F324-4EC8-9236-DADEE6128030}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E9B090E-6937-4607-831B-88B4CCBE7CDB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E9B090E-6937-4607-831B-88B4CCBE7CDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E9B090E-6937-4607-831B-88B4CCBE7CDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E9B090E-6937-4607-831B-88B4CCBE7CDB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

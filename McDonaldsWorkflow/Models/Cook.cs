@@ -1,16 +1,39 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
+using McDonaldsWorkflow.Models.Interfaces;
 
 namespace McDonaldsWorkflow.Models
 {
-    class Cook : ICook
+    public class Cook : Employee, ICook
     {
         #region Properties
 
+        private int _mealCount;
+        private readonly int _maxMealCount;
+        private readonly object _lockObj;
+        private readonly int _cookingTime;
+        private readonly ICompany _company;
+        private readonly int _grabMealTime;
 
+        #endregion
+
+        #region 
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Cook" /> class.
+        /// </summary>
+        /// <param name="mealType">Type of the meal.</param>
+        /// <param name="cookingTime">The cooking time.</param>
+        public Cook(MealTypes mealType, int cookingTime)
+        {
+            _mealCount = Constants.InitialMealCount;
+            _maxMealCount = Constants.MaxMealCount;
+            _grabMealTime = Constants.MealGrabTimeMs;
+            MealType = mealType;
+            _cookingTime = cookingTime;
+            _lockObj = new object();
+            _company = McDonalds.Instance;
+        }
 
         #endregion
 
@@ -19,9 +42,15 @@ namespace McDonaldsWorkflow.Models
         /// <summary>
         /// Cook starts to prepare his specific meal
         /// </summary>
-        private void PrepareMeal()
+        private void CookMeal()
         {
-
+            Console.WriteLine(@"Starting to cook {0}...", MealType);
+            Thread.Sleep(_cookingTime);
+            lock (_lockObj)
+            {
+                _mealCount++;
+                Console.WriteLine(@"Finished cooking {0}. Meal count {1}", MealType, _mealCount);
+            }
         }
 
         /// <summary>
@@ -29,7 +58,11 @@ namespace McDonaldsWorkflow.Models
         /// </summary>
         private void Rest()
         {
-
+            Console.WriteLine(@"{0} cook is resting, table is full...", MealType);
+            //idk why it is not working with just WaitOne. Feel free to fix it.
+            _waitHandle.Reset();
+            _waitHandle.WaitOne();
+            Console.WriteLine(@"{0} cook finished resting.", MealType);
         }
 
         #endregion
@@ -41,26 +74,80 @@ namespace McDonaldsWorkflow.Models
         /// </summary>
         public void DoWork()
         {
+            while (!_company.IsEndOfDay )
+            {
+                bool isTableFull;
+                
+                lock (_lockObj)
+                {
+                    isTableFull = _mealCount < _maxMealCount;
+                }
 
+                if (isTableFull)
+                {
+                    CookMeal();
+                }
+                else
+                {
+                    Rest();
+                }
+            }
+
+            Console.WriteLine(@"{0} cook is going home. Bye bye", MealType);
         }
 
 
         #endregion
 
         #region ICook implementation
-        public MealsEnum MealType { get; set; }
-
-        public int MealCount { get; set; }
 
         /// <summary>
-        /// Tries get needed number of meal
+        /// Gets the type of the meal.
         /// </summary>
-        public void TryGetMeals()
-        {
-            throw new NotImplementedException();
-        }
+        /// <value>
+        /// The type of the meal.
+        /// </value>
+        public MealTypes MealType { get; private set; }
 
- 
+        /// <summary>
+        /// Tries the get meals.
+        /// </summary>
+        /// <param name="requestedCount">The requested count.</param>
+        /// <param name="takenCount">The taken count.</param>
+        /// <returns></returns>
+        public bool TryGetMeals(int requestedCount, out int takenCount)
+        {
+            Console.WriteLine(@"{0} Trying to take {1} {2} from the table...", DateTime.Now, requestedCount, MealType);
+            
+            lock (_lockObj)
+            {
+                Thread.Sleep(_grabMealTime);
+                bool success;
+                if (_mealCount >= requestedCount)
+                {
+                    _mealCount -= requestedCount;
+                    takenCount = requestedCount;
+
+                    if (_mealCount < 0)
+                    {
+                        throw new ArithmeticException("Negative meal count");
+                    }
+
+                    Console.WriteLine(@"{0} Success. Took all {1} meals of {2} type", DateTime.Now, takenCount, MealType);
+                    success = true;
+                }
+                else
+                {
+                    takenCount = _mealCount;
+                    _mealCount = 0;
+                    Console.WriteLine(@"{0} Fail. Took just {1} meals of {2} type", DateTime.Now, takenCount, MealType);
+                    success = false;
+                }
+
+                _waitHandle.Set();
+                return success;
+            }
+        }
         
         #endregion
     }
