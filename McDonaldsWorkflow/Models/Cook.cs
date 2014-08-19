@@ -71,7 +71,7 @@ namespace McDonaldsWorkflow.Models
         {
             lock (_lockObj)
             {
-                return _mealCount < _maxMealCount;
+                return _mealCount >= _maxMealCount;
             }
         }
 
@@ -94,7 +94,7 @@ namespace McDonaldsWorkflow.Models
         {
             while (!_company.IsEndOfDay )
             {
-                if (IsTableFull())
+                if (!IsTableFull())
                 {
                     CookMeal();
                 }
