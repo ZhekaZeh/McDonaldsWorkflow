@@ -7,7 +7,6 @@ namespace McDonaldsWorkflow.Models
         int Takings { get; set; }
 
         int LineCount { get; set; }
-
-        ManualResetEvent WaitHandle { get; }
+        AutoResetEvent WaitHandle { get; }
     }
 }

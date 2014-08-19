@@ -6,6 +6,6 @@ namespace McDonaldsWorkflow.Models
     {
         MealTypes MealType { get; }
         bool TryGetMeals(int requestedCount, out int takenCount);
-        ManualResetEvent WaitHandle { get; }
+        AutoResetEvent WaitHandle { get; }
     }
 }

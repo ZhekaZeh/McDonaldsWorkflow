@@ -6,7 +6,7 @@ namespace McDonaldsWorkflow.Models
     {
         #region Private members
 
-        protected readonly ManualResetEvent _waitHandle;
+        protected readonly AutoResetEvent _waitHandle;
 
         #endregion
 
@@ -17,7 +17,7 @@ namespace McDonaldsWorkflow.Models
         /// </summary>
         public Employee()
         {
-            _waitHandle = new ManualResetEvent(true);
+            _waitHandle = new AutoResetEvent(false);
         }
 
         #endregion
@@ -30,7 +30,7 @@ namespace McDonaldsWorkflow.Models
         /// <value>
         /// The wait handle.
         /// </value>
-        public ManualResetEvent WaitHandle
+        public AutoResetEvent WaitHandle
         {
             get { return _waitHandle; }
         }

@@ -4,31 +4,15 @@ namespace McDonaldsWorkflow.Models
 {
     class Manager
     {
-        #region Properties
-
-        private int DailyTakings { get; set; }
-
-        #endregion
-
         #region Public Methods
 
         /// <summary>
         /// Gets takings from all cashiers  
         /// </summary>
-        public void GetTakings()
+        public static int GetTakings()
         {
-
+            return 0;
         }
-
-
-        #endregion
-
-        #region Events
-
-        /// <summary>
-        /// Notifies that the current workday is over
-        /// </summary>
-        public event EventHandler TheDayIsOver;
 
         #endregion
     }

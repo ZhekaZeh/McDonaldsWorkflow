@@ -59,8 +59,6 @@ namespace McDonaldsWorkflow.Models
         private void Rest()
         {
             Console.WriteLine(@"{0} cook is resting, table is full...", MealType);
-            //idk why it is not working with just WaitOne. Feel free to fix it.
-            _waitHandle.Reset();
             _waitHandle.WaitOne();
             Console.WriteLine(@"{0} cook finished resting.", MealType);
         }

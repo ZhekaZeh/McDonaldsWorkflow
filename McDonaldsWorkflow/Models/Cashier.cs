@@ -15,11 +15,10 @@ namespace McDonaldsWorkflow.Models
         #region Private Methods
 
         /// <summary>
-        /// Cashier has a rest
+        ///     Cashier has a rest
         /// </summary>
         private void Rest()
         {
-
         }
 
         #endregion
@@ -28,41 +27,28 @@ namespace McDonaldsWorkflow.Models
 
         public void GetMoney()
         {
-
         }
 
         public void TryToGatherOrder()
         {
-
         }
 
         #endregion
 
         #region ICashier implementation
+
         public int Takings
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
         }
 
         public int LineCount
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
         }
+
         #endregion
     }
-
 }
