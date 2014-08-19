@@ -63,6 +63,26 @@ namespace McDonaldsWorkflow.Models
             Console.WriteLine(@"{0} cook finished resting.", MealType);
         }
 
+        /// <summary>
+        /// Determines whether [is table full].
+        /// </summary>
+        /// <returns></returns>
+        private bool IsTableFull()
+        {
+            lock (_lockObj)
+            {
+                return _mealCount < _maxMealCount;
+            }
+        }
+
+        /// <summary>
+        /// Goes the home.
+        /// </summary>
+        private void GoHome()
+        {
+            Console.WriteLine(@"{0} cook is going home. Bye bye", MealType);
+        }
+
         #endregion
 
         #region Public Methods
@@ -74,14 +94,7 @@ namespace McDonaldsWorkflow.Models
         {
             while (!_company.IsEndOfDay )
             {
-                bool isTableFull;
-                
-                lock (_lockObj)
-                {
-                    isTableFull = _mealCount < _maxMealCount;
-                }
-
-                if (isTableFull)
+                if (IsTableFull())
                 {
                     CookMeal();
                 }
@@ -91,9 +104,8 @@ namespace McDonaldsWorkflow.Models
                 }
             }
 
-            Console.WriteLine(@"{0} cook is going home. Bye bye", MealType);
+            GoHome();
         }
-
 
         #endregion
 
