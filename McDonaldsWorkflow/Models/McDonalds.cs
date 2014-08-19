@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using McDonaldsWorkflow.Models.Interfaces;
 
 namespace McDonaldsWorkflow.Models
@@ -7,10 +8,11 @@ namespace McDonaldsWorkflow.Models
     {
         #region Private fields
 
-        private static McDonalds _instance;
+        //System.Lazy type guarantees thread-safe lazy-construction
+        private static readonly Lazy<McDonalds> _instance = new Lazy<McDonalds>(() => new McDonalds());
+        private readonly object _lockObj;
         private List<ICashier> _cashiers;
         private List<ICook> _cooks;
-        private readonly object _lockObj;
         private bool _isEndOfDay;
 
         #endregion
@@ -26,18 +28,10 @@ namespace McDonaldsWorkflow.Models
         #endregion
 
         #region Properties
-        
-        public static ICompany Instance 
-        {
-            get
-            {
-                if (_instance != null)
-                {
-                    return _instance;
-                }
 
-                return _instance = new McDonalds();
-            }
+        public static ICompany Instance
+        {
+            get { return _instance.Value; }
         }
 
         #endregion
@@ -45,15 +39,7 @@ namespace McDonaldsWorkflow.Models
         #region Public Methods
 
         /// <summary>
-        /// Logic for generate random clients
-        /// </summary>
-        public void GenerateClients()
-        {
-
-        }
-
-        /// <summary>
-        /// Ends the day.
+        ///     Ends the day.
         /// </summary>
         public void EndTheDay()
         {
@@ -64,11 +50,19 @@ namespace McDonaldsWorkflow.Models
             //}
         }
 
+        /// <summary>
+        ///     Logic for generate random clients
+        /// </summary>
+        public void GenerateClients()
+        {
+        }
+
         #endregion
 
         #region ICompany implementation
 
-        public bool IsEndOfDay {
+        public bool IsEndOfDay
+        {
             get
             {
                 lock (_lockObj)
@@ -79,6 +73,5 @@ namespace McDonaldsWorkflow.Models
         }
 
         #endregion
-        
     }
 }

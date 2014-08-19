@@ -2,7 +2,7 @@
 
 namespace McDonaldsWorkflow.Models
 {
-    interface ICook
+    public interface ICook
     {
         MealTypes MealType { get; }
         bool TryGetMeals(int requestedCount, out int takenCount);
