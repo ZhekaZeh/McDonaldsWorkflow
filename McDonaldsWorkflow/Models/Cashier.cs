@@ -27,11 +27,20 @@ namespace McDonaldsWorkflow.Models
 
         public Queue<Client> Line
         {
-            get { return _line; }
+            get
+            {
+                lock (_lockObj)
+                {
+                    return _line;
+                }
+            }
             set
             {
-                _line = value;
-                _lineCount = Line.Count;
+                lock (_lockObj)
+                {
+                    _line = value;
+                    _lineCount = Line.Count;
+                }
             }
         }
 
@@ -46,6 +55,7 @@ namespace McDonaldsWorkflow.Models
             _line = new Queue<Client>();
             _lineCount = Line.Count;
             _takings = Constants.InitialTakings;
+            _company = McDonalds.Instance;
         }
 
         #endregion
@@ -86,6 +96,8 @@ namespace McDonaldsWorkflow.Models
             _currentClient = Line.Peek();
             // must be implemented
          
+
+
         }
 
         public void DoWork()
