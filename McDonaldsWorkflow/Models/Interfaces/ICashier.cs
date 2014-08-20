@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Collections.Generic;
+using System.Threading;
 
 namespace McDonaldsWorkflow.Models
 {
@@ -6,6 +7,7 @@ namespace McDonaldsWorkflow.Models
     {
         int Takings { get; }
         int LineCount { get; }
+        Queue<Client> Line { get; set; }
         AutoResetEvent WaitHandle { get; }
     }
 }

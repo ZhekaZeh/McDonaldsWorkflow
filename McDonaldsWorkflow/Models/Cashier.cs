@@ -56,6 +56,7 @@ namespace McDonaldsWorkflow.Models
             _lineCount = Line.Count;
             _takings = Constants.InitialTakings;
             _company = McDonalds.Instance;
+            DoWork();
         }
 
         #endregion
@@ -94,12 +95,15 @@ namespace McDonaldsWorkflow.Models
         public void TryToGatherOrder()
         {
             _currentClient = Line.Peek();
-            // must be implemented
-         
-
-
+            int count;
+            ThreadPool.QueueUserWorkItem((object obj) => _company.Cooks[0].TryGetMeals(_currentClient.MealCount, out count));
+            Console.WriteLine(@"Try to get meals...");
+            Thread.Sleep(500);
         }
 
+        /// <summary>
+        /// Start Cashier's workflow
+        /// </summary>
         public void DoWork()
         {
             while (!_company.IsEndOfDay)
@@ -139,6 +143,14 @@ namespace McDonaldsWorkflow.Models
                 lock (_lockObj)
                 {
                     return _lineCount;
+                }
+            }
+            //setter was created for test only. must be deleted
+            set
+            {
+                lock (_lockObj)
+                {
+                    
                 }
             }
         }

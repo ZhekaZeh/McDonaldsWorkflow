@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
 
 namespace McDonaldsWorkflow.Models
 {
@@ -7,7 +8,14 @@ namespace McDonaldsWorkflow.Models
         #region Properties
         public Dictionary<MealTypes, int> Order { get; set; }
 
+        //for test
+        public int MealCount { get; set; }
         #endregion
+
+        public Client(int mealCount)
+        {
+            MealCount = mealCount;
+        }
 
         #region Public methods
 
