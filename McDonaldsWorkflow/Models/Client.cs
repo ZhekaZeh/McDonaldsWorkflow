@@ -2,7 +2,7 @@
 
 namespace McDonaldsWorkflow.Models
 {
-    internal class Client
+    public class Client
     {
         #region Properties
         public Dictionary<MealTypes, int> Order { get; set; }

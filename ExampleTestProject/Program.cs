@@ -13,8 +13,7 @@ namespace ExampleTestProject
         static void Main(string[] args)
         {
             var cook = new Cook(MealTypes.Hamburger, Constants.CookingTimeBurgerMs);
-            var cookThread = new Thread(cook.DoWork);
-            cookThread.IsBackground = true;
+            var cookThread = new Thread(cook.DoWork) {IsBackground = true};
             cookThread.Start();
 
             int requestedCount;
