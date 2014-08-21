@@ -87,12 +87,12 @@ namespace McDonaldsWorkflow.Models
         // Must be use LINQ. This method will be fixed
             Thread.Sleep(500);
             Console.WriteLine(@"Client went to McDonalds.");
-            Thread.Sleep(5000);
+            Thread.Sleep(2000);
+            var rnd = new Random(); // for test only
 
             lock (_lockObj)
             {
-                _cashiers[0].StandOnLine(new Client(5));
-                Console.WriteLine(@"Client make an order [5 meals].");
+                _cashiers[0].StandOnLine(new Client(5, rnd.Next(99)));
             }
             
         }

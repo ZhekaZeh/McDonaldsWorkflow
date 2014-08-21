@@ -77,11 +77,17 @@ namespace McDonaldsWorkflow.Models
 
         public void TryToGatherOrder()
         {
-            _currentClient = _line.Dequeue();
-            int count;
-            _cooks[0].TryGetMeals(_currentClient.MealCount, out count);
-            Console.WriteLine(@"Try to get meals...");
-            Thread.Sleep(500);
+            _currentClient = _line.Peek();
+            do
+            {
+                int count;
+                if (_cooks[0].TryGetMeals(_currentClient.MealCount, out count)) break;
+                _currentClient.MealCount -= count;
+                Thread.Sleep(500);
+            } while (true);
+
+            _line.Dequeue();
+            Console.WriteLine(@"        Client {0} go away!!!", _currentClient.clientID);
         }
 
         /// <summary>
@@ -133,6 +139,7 @@ namespace McDonaldsWorkflow.Models
         public void StandOnLine(Client client)
         {
             _line.Enqueue(client);
+            Console.WriteLine(@"Client{0} stand in line.", client.clientID);
             _waitHandle.Set();
         }
 

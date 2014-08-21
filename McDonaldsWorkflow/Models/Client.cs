@@ -8,13 +8,16 @@ namespace McDonaldsWorkflow.Models
         #region Properties
         public Dictionary<MealTypes, int> Order { get; set; }
 
-        //For test only
+        //For test only MealCount 
         public int MealCount { get; set; }
+
+        public int clientID { get; set; }
         #endregion
 
-        public Client(int mealCount)
+        public Client(int mealCount, int id)
         {
             MealCount = mealCount;
+            clientID = id;
         }
 
         #region Public methods
