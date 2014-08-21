@@ -41,14 +41,13 @@ namespace ExampleTestProject
 
             #region Test_2
 
-            McDonalds.Instance.StartWork();
+            ThreadPool.QueueUserWorkItem((object obj) => McDonalds.Instance.StartWork());
             Console.ReadLine();
             McDonalds.Instance.EndTheDay();
 
-            #endregion
+            Console.ReadLine();
 
-            
-            
+            #endregion
         }
     }
 }

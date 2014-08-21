@@ -1,11 +1,8 @@
-﻿using System.Threading;
-
-namespace McDonaldsWorkflow.Models
+﻿namespace McDonaldsWorkflow.Models.Interfaces
 {
-    public interface ICook
+    public interface ICook : IEmployee
     {
         MealTypes MealType { get; }
         bool TryGetMeals(int requestedCount, out int takenCount);
-        AutoResetEvent WaitHandle { get; }
     }
 }

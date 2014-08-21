@@ -14,9 +14,10 @@ namespace McDonaldsWorkflow.Models
         private static volatile ICompany _instance;
         private static readonly object _syncRoot = new Object();
         private readonly object _lockObj;
-        private readonly List<ICashier> _cashiers;
-        private readonly List<ICook> _cooks;
+        private List<ICashier> _cashiers;
+        private List<ICook> _cooks;
         private bool _isEndOfDay;
+        private Dictionary<MealTypes, double> _menu;
 
         #endregion
 
@@ -24,8 +25,6 @@ namespace McDonaldsWorkflow.Models
 
         private McDonalds()
         {
-            _cashiers = new List<ICashier>();
-            _cooks = new List<ICook>();
             _isEndOfDay = false;
             _lockObj = new object();
         }
@@ -60,16 +59,30 @@ namespace McDonaldsWorkflow.Models
         /// </summary>
         private void InitializeEmployees()
         {
+            InitializeMenuAndCooks();
+            InitializeCashiers();
+        }
 
-            //foreach (MealTypes mealType in Enum.GetValues(typeof(MealTypes)))
-            //{
-            //    _cooks.Add(new Cook(mealType, Constants.CookingTimeHamburgerMs));
-            //}
+        private void InitializeMenuAndCooks()
+        {
+            _cooks = new List<ICook>();
+            _menu = new Dictionary<MealTypes, double>();
+            var menuSize = Math.Min(Constants.MenuSize, sizeof(MealTypes));
+            
+            for (int i = 0; i < menuSize; i++)
+            {
+                var mealType = (MealTypes)i;
+                var cook = new Cook(mealType, Constants.CookingTimesMs[mealType]);
+                _cooks.Add(cook);
+                _menu.Add(mealType, Constants.PriceList[mealType]);
+                ThreadPool.QueueUserWorkItem((object obj) => cook.DoWork());
+                 // increment meal type to switch to new meal
+            }
+        }
 
-            var cook = new Cook(MealTypes.Hamburger, Constants.CookingTimeHamburgerMs);
-            _cooks.Add(cook);
-            ThreadPool.QueueUserWorkItem((object obj) => cook.DoWork());
-
+        private void InitializeCashiers()
+        {
+            _cashiers = new List<ICashier>();
             for (var i = 1; i <= Constants.CashierCount; i++)
             {
                 var cashier = new Cashier(i, _cooks);
@@ -128,11 +141,18 @@ namespace McDonaldsWorkflow.Models
         /// </summary>
         public void EndTheDay()
         {
-            _isEndOfDay = true;
-
-            foreach (var cook in _cooks)
+            Console.WriteLine(@"McDonalds is closing...");
+            lock (_lockObj)
             {
-                cook.WaitHandle.Set();
+                _isEndOfDay = true;
+
+                //Get the list of all employees from cooks and cashiers
+                var emplyees = _cooks.Concat(_cashiers.Cast<IEmployee>());
+
+                foreach (var employee in emplyees)
+                {
+                    employee.IsEndOfDay = _isEndOfDay;
+                }
             }
         }
 

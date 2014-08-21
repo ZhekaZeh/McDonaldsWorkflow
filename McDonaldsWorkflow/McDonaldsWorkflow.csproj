@@ -82,6 +82,9 @@
     <Compile Include="Models\Interfaces\ICook.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Models\Interfaces\IEmployee.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Models\Manager.cs" />
     <Compile Include="Models\McDonalds.cs" />
     <Compile Include="Models\MealTypes.cs" />

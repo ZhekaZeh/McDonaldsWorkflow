@@ -10,102 +10,25 @@ namespace McDonaldsWorkflow.Models
 
         private int _mealCount;
         private readonly int _maxMealCount;
-        private readonly object _lockObj;
         private readonly int _cookingTime;
-        private readonly ICompany _company;
         private readonly int _grabMealTime;
 
         #endregion
 
-        #region 
+        #region Constructor
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="Cook" /> class.
         /// </summary>
         /// <param name="mealType">Type of the meal.</param>
         /// <param name="cookingTime">The cooking time.</param>
-        public Cook(MealTypes mealType, int cookingTime)
+        public Cook(MealTypes mealType, int cookingTime):base(String.Format("{0} cook", mealType))
         {
             _mealCount = Constants.InitialMealCount;
             _maxMealCount = Constants.MaxMealCount;
             _grabMealTime = Constants.MealGrabTimeMs;
             MealType = mealType;
             _cookingTime = cookingTime;
-            _lockObj = new object();
-            _company = McDonalds.Instance;
-        }
-
-        #endregion
-
-        #region Private Methods
-
-        /// <summary>
-        ///     Cook starts to prepare his specific meal
-        /// </summary>
-        private void CookMeal()
-        {
-            Console.WriteLine(@"Starting to cook {0}...", MealType);
-            Thread.Sleep(_cookingTime);
-            lock (_lockObj)
-            {
-                _mealCount++;
-                Console.WriteLine(@"Finished cooking {0}. Meal count {1}", MealType, _mealCount);
-            }
-        }
-
-        /// <summary>
-        ///     Cook has a rest
-        /// </summary>
-        private void Rest()
-        {
-            Console.WriteLine(@"{0} cook is resting, table is full...", MealType);
-            _waitHandle.WaitOne();
-            Console.WriteLine(@"{0} cook finished resting.", MealType);
-        }
-
-        /// <summary>
-        ///     Determines whether [is table full].
-        /// </summary>
-        /// <returns></returns>
-        private bool IsTableFull()
-        {
-            lock (_lockObj)
-            {
-                return _mealCount >= _maxMealCount;
-            }
-        }
-
-        /// <summary>
-        /// Goes home.
-        /// </summary>
-        private void GoHome()
-        {
-            Console.WriteLine(@"{0} cook is going home. Bye bye", MealType);
-        }
-
-        #endregion
-
-        #region Public Methods
-
-        /// <summary>
-        ///     Cook's work logic.
-        /// </summary>
-        public void DoWork()
-        {
-            while (!_company.IsEndOfDay )
-            {
-                if (!IsTableFull())
-                {
-                    CookMeal();
-                    
-                }
-                else
-                {
-                    Rest();
-                }
-            }
-
-            GoHome();
         }
 
         #endregion
@@ -160,6 +83,37 @@ namespace McDonaldsWorkflow.Models
             }
         }
         
+        #endregion
+
+        #region Employee abstract methods implementation
+
+        /// <summary>
+        /// Determines whether the table is full or nor.
+        /// </summary>
+        /// <returns>true if the table is full, false otherwise</returns>
+        protected override bool HasSomethingToDo()
+        {
+            //check if the table is full
+            lock (_lockObj)
+            {
+                return _mealCount < _maxMealCount;
+            }
+        }
+
+        /// <summary>
+        /// Works this instance.
+        /// </summary>
+        protected override void Work()
+        {
+            Console.WriteLine(@"Starting to cook {0}...", MealType);
+            Thread.Sleep(_cookingTime);
+            lock (_lockObj)
+            {
+                _mealCount++;
+                Console.WriteLine(@"Finished cooking {0}. Meal count {1}", MealType, _mealCount);
+            }
+        }
+
         #endregion
     }
 }

@@ -11,9 +11,7 @@ namespace McDonaldsWorkflow.Models
         #region Private fields
 
         private int _takings;
-        private readonly object _lockObj;
         private Queue<Client> _line;
-        private readonly ICompany _company;
         private Client _currentClient;
         private readonly List<ICook> _cooks;
      
@@ -21,46 +19,20 @@ namespace McDonaldsWorkflow.Models
  
         #region Properties
 
-        public bool EndOfDay { get; set; }
-
         public int Id { get; private set; }
 
         #endregion
 
         #region Constructor
 
-        public Cashier(int id, List<ICook> cooks)
+        public Cashier(int id, List<ICook> cooks):base(String.Format("Cashier #{0}", id))
         {
             Id = id;
-            _lockObj = new object();
             _line = new Queue<Client>();
             _takings = Constants.InitialTakings;
-            _company = McDonalds.Instance;
             _cooks = cooks;
         }
 
-        #endregion
-
-
-        #region Private Methods
-
-        /// <summary>
-        ///     Cashier has a rest.
-        /// </summary>
-        private void Rest()
-        {
-            Console.WriteLine(@"Cashier №{0} is resting... hasn't any clients.", Id);
-            _waitHandle.WaitOne();
-            Console.WriteLine(@"Cashier №{0} finished resting.", Id);
-        }
-
-        /// <summary>
-        ///     Cashier is going home.
-        /// </summary>
-        private void GoHome()
-        {
-            Console.WriteLine(@"Cashier №{0} is going home. Bye bye", Id);
-        }
         #endregion
 
         #region Public Methods
@@ -88,6 +60,7 @@ namespace McDonaldsWorkflow.Models
             do
             {
                 int count;
+                //TODO: REWORK THE WHOLE METHOD!!!
                 if (_cooks[0].TryGetMeals(_currentClient.MealCount, out count)) break;
                 _currentClient.MealCount -= count;
                 Thread.Sleep(500);
@@ -95,26 +68,6 @@ namespace McDonaldsWorkflow.Models
 
             _line.Dequeue();
             Console.WriteLine(@"          Client {0} go away!!!", _currentClient.ClientId);
-        }
-
-        /// <summary>
-        ///     Start Cashier's workflow
-        /// </summary>
-        public void DoWork()
-        {
-            while (!_company.IsEndOfDay)
-            {
-                if (LineCount != 0)
-                {
-                    TryToGatherOrder();
-                }
-                else
-                {
-                    Rest();
-                }
-            }
-
-            GoHome();
         }
 
         #endregion
@@ -159,5 +112,36 @@ namespace McDonaldsWorkflow.Models
         }
 
         #endregion
+
+        #region Employee abstract methods implementation
+
+        /// <summary>
+        /// Determines whether the table is full or nor.
+        /// </summary>
+        /// <returns>true if the table is full, false otherwise</returns>
+        protected override bool HasSomethingToDo()
+        {
+            //check if the table is full
+            lock (_lockObj)
+            {
+                return LineCount > 0;
+            }
+        }
+
+        /// <summary>
+        /// Works this instance.
+        /// </summary>
+        protected override void Work()
+        {
+            TryToGatherOrder();
+            GrabMissingMeals();
+        }
+
+        #endregion
+
+        private void GrabMissingMeals()
+        {
+            //TODO: Implement!!!
+        }
     }
 }

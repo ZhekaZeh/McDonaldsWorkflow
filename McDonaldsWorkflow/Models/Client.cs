@@ -43,13 +43,9 @@ namespace McDonaldsWorkflow.Models
         /// <param name="cashiers"></param>
         public void StandOnLine(List<ICashier> cashiers)
         {
-            ICashier[] selectedCashier = { cashiers[0] };
+            var chosenCachier = cashiers.OrderBy(cashier => cashier.LineCount).First();
 
-            foreach (var cashier in cashiers.Where(cashier => cashier.LineCount < selectedCashier[0].LineCount))
-            {
-                selectedCashier[0] = cashier;
-            }
-            selectedCashier[0].StandOnLine(this);
+            chosenCachier.StandOnLine(this);
         }
 
         #endregion

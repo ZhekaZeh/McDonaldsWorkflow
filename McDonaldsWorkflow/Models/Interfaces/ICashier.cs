@@ -1,12 +1,9 @@
-﻿using System.Threading;
-
-namespace McDonaldsWorkflow.Models.Interfaces
+﻿namespace McDonaldsWorkflow.Models.Interfaces
 {
-    public interface ICashier
+    public interface ICashier: IEmployee
     {
         int Takings { get; }
         int LineCount { get; }
         void StandOnLine(Client client);
-        AutoResetEvent WaitHandle { get; }
     }
 }
