@@ -8,7 +8,7 @@
         public const int InitialTakings = 0;
         public const int CashierCount = 3;
 
-        public const int CookingTimeHamburgerMs = 1000;
+        public const int CookingTimeHamburgerMs = 300;
         public const int CookingTimeCheeseburgerMs = 1500;
         public const int CookingTimeMacChickenMs = 1000;
         public const int CookingTimeChippedPotatoMs = 2000;

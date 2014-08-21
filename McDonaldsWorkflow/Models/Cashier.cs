@@ -65,6 +65,10 @@ namespace McDonaldsWorkflow.Models
 
         #region Public Methods
 
+        /// <summary>
+        ///     Takes cash from client and add to takings
+        /// </summary>
+        /// <param name="cash"></param>
         public void GetMoney(int cash)
         {
             var _lock = new object();
@@ -75,6 +79,9 @@ namespace McDonaldsWorkflow.Models
             
         }
 
+        /// <summary>
+        ///     Tries to gather next client's order
+        /// </summary>
         public void TryToGatherOrder()
         {
             _currentClient = _line.Peek();
@@ -87,7 +94,7 @@ namespace McDonaldsWorkflow.Models
             } while (true);
 
             _line.Dequeue();
-            Console.WriteLine(@"Client {0} go away!!!", _currentClient.clientID);
+            Console.WriteLine(@"          Client {0} go away!!!", _currentClient.ClientId);
         }
 
         /// <summary>
@@ -136,6 +143,10 @@ namespace McDonaldsWorkflow.Models
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="client"></param>
         public void StandOnLine(Client client)
         {
             lock (_lockObj)
@@ -143,7 +154,7 @@ namespace McDonaldsWorkflow.Models
                 _line.Enqueue(client);
             }
 
-            Console.WriteLine(@"Client{0} stand in line.", client.clientID);
+            Console.WriteLine(@"Client{0} stand in line.", client.ClientId);
             _waitHandle.Set();
         }
 

@@ -33,7 +33,6 @@ namespace McDonaldsWorkflow.Models
             _cookingTime = cookingTime;
             _lockObj = new object();
             _company = McDonalds.Instance;
-            ThreadPool.QueueUserWorkItem((object obj) => DoWork());
         }
 
         #endregion
@@ -65,7 +64,7 @@ namespace McDonaldsWorkflow.Models
         }
 
         /// <summary>
-        /// Determines whether [is table full].
+        ///     Determines whether [is table full].
         /// </summary>
         /// <returns></returns>
         private bool IsTableFull()
@@ -77,7 +76,7 @@ namespace McDonaldsWorkflow.Models
         }
 
         /// <summary>
-        /// Goes the home.
+        /// Goes home.
         /// </summary>
         private void GoHome()
         {
@@ -89,7 +88,7 @@ namespace McDonaldsWorkflow.Models
         #region Public Methods
 
         /// <summary>
-        /// Cook's work logic
+        ///     Cook's work logic.
         /// </summary>
         public void DoWork()
         {
@@ -98,6 +97,7 @@ namespace McDonaldsWorkflow.Models
                 if (!IsTableFull())
                 {
                     CookMeal();
+                    
                 }
                 else
                 {
@@ -113,7 +113,7 @@ namespace McDonaldsWorkflow.Models
         #region ICook implementation
 
         /// <summary>
-        /// Gets the type of the meal.
+        ///     Gets type of the meal.
         /// </summary>
         /// <value>
         /// The type of the meal.
@@ -121,7 +121,7 @@ namespace McDonaldsWorkflow.Models
         public MealTypes MealType { get; private set; }
 
         /// <summary>
-        /// Tries the get meals.
+        ///     Tries get meals.
         /// </summary>
         /// <param name="requestedCount">The requested count.</param>
         /// <param name="takenCount">The taken count.</param>

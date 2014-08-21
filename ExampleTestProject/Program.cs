@@ -42,11 +42,13 @@ namespace ExampleTestProject
             #region Test_2
 
             McDonalds.Instance.StartWork();
- 
+            Console.ReadLine();
+            McDonalds.Instance.EndTheDay();
+
             #endregion
 
-
-            Console.ReadLine();
+            
+            
         }
     }
 }

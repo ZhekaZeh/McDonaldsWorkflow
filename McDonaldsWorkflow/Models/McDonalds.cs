@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using McDonaldsWorkflow.Models.Interfaces;
@@ -34,7 +33,10 @@ namespace McDonaldsWorkflow.Models
         #endregion
 
         #region Properties
-
+        
+        /// <summary>
+        ///     Implemetation of Singelton pattern with tread-safe construction.
+        /// </summary>
         public static ICompany Instance
         {
             get
@@ -64,8 +66,9 @@ namespace McDonaldsWorkflow.Models
             //    _cooks.Add(new Cook(mealType, Constants.CookingTimeHamburgerMs));
             //}
 
-
-            _cooks.Add(new Cook(MealTypes.Hamburger, Constants.CookingTimeHamburgerMs));
+            var cook = new Cook(MealTypes.Hamburger, Constants.CookingTimeHamburgerMs);
+            _cooks.Add(cook);
+            ThreadPool.QueueUserWorkItem((object obj) => cook.DoWork());
 
             for (var i = 1; i <= Constants.CashierCount; i++)
             {
@@ -84,22 +87,13 @@ namespace McDonaldsWorkflow.Models
         /// </summary>
         private void GenerateClients()
         {
-            Thread.Sleep(500);
-            Console.WriteLine(@"Client went to McDonalds.");
-            Thread.Sleep(2000);
-            ICashier[] selectedCashier = {_cashiers[0]};
-            var rnd = new Random(); // for test only
+            var rnd = new Random();
+            var currentClient = new Client(5, rnd.Next(99));
 
-            foreach (var cashier in _cashiers.Where(cashier => cashier.LineCount < selectedCashier[0].LineCount))
-            {
-                selectedCashier[0] = cashier;
-            }
-            
-            lock (_lockObj)
-            {
-                selectedCashier[0].StandOnLine(new Client(5, rnd.Next(99)));
-            }
-            
+            Console.WriteLine(@"Client went to McDonalds.");
+            Thread.Sleep(2200);
+
+            currentClient.StandOnLine(_cashiers);
         }
 
         /// <summary>

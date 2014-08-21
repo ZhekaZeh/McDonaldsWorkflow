@@ -2,7 +2,7 @@
 
 namespace McDonaldsWorkflow.Models.Interfaces
 {
-    interface ICashier
+    public interface ICashier
     {
         int Takings { get; }
         int LineCount { get; }
