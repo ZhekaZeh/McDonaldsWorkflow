@@ -11,8 +11,6 @@ namespace McDonaldsWorkflow.Models
     public class McDonalds : ICompany
     {
         #region Private fields
-
-        //System.Lazy type guarantees thread-safe lazy-construction
         
         private static volatile ICompany _instance;
         private static readonly object _syncRoot = new Object();
@@ -31,7 +29,6 @@ namespace McDonaldsWorkflow.Models
             _cooks = new List<ICook>();
             _isEndOfDay = false;
             _lockObj = new object();
-            InitializeEmployees();
         }
 
         #endregion
@@ -48,14 +45,8 @@ namespace McDonaldsWorkflow.Models
                     if (_instance == null)
                         _instance = new McDonalds();
                 }
-
                 return _instance;
             }
-        }
-
-        public List<ICook> Cooks
-        {
-            get { return _cooks; }
         }
 
         #endregion
@@ -63,20 +54,24 @@ namespace McDonaldsWorkflow.Models
         #region Private Methods
 
         /// <summary>
-        /// Initializes lists with Cashiers and Cooks (Emloyees). For test it creates only one cashier and one cook
+        ///     Initializes lists with Cashiers and Cooks (Emloyees). For test it creates only one cashier and one cook
         /// </summary>
         private void InitializeEmployees()
         {
+
             //foreach (MealTypes mealType in Enum.GetValues(typeof(MealTypes)))
             //{
             //    _cooks.Add(new Cook(mealType, Constants.CookingTimeBurgerMs));
             //}
 
+
             _cooks.Add(new Cook(MealTypes.Hamburger, Constants.CookingTimeBurgerMs));
 
             for (var i = 1; i <= Constants.CashierCount; i++)
             {
-                _cashiers.Add(new Cashier(i));
+                var cashier = new Cashier(i, _cooks);
+                _cashiers.Add(cashier);
+                ThreadPool.QueueUserWorkItem((object obj) => cashier.DoWork());
             }
         }
 
@@ -87,29 +82,30 @@ namespace McDonaldsWorkflow.Models
         /// <summary>
         ///     Logic for generate random clients
         /// </summary>
-        public void GenerateClients()
+        private void GenerateClients()
         {
-           // must be use linq .....................this method will be fixed
+        // Must be use LINQ. This method will be fixed
             Thread.Sleep(500);
-            Console.WriteLine(@"Client went to McDonalds...");
-            Thread.Sleep(500);
+            Console.WriteLine(@"Client went to McDonalds.");
+            Thread.Sleep(5000);
 
             lock (_lockObj)
             {
-                _cashiers[0].Line.Enqueue(new Client(5));
-                Console.WriteLine(@"Client is making order...5 meals");
+                _cashiers[0].StandOnLine(new Client(5));
+                Console.WriteLine(@"Client make an order [5 meals].");
             }
             
         }
 
         /// <summary>
-        /// Starts McDonald's workflow
+        ///     Starts McDonald's workflow
         /// </summary>
         public void StartWork()
         {
+            InitializeEmployees();
             do
             {
-                ThreadPool.QueueUserWorkItem((object obj) => GenerateClients()); 
+                GenerateClients();
 
             } while (!IsEndOfDay);
         }

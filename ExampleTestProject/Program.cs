@@ -42,8 +42,7 @@ namespace ExampleTestProject
             #region Test_2
 
             McDonalds.Instance.StartWork();
-
-            
+ 
             #endregion
 
 

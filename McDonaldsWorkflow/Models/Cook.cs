@@ -20,7 +20,7 @@ namespace McDonaldsWorkflow.Models
         #region 
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Cook" /> class.
+        ///     Initializes a new instance of the <see cref="Cook" /> class.
         /// </summary>
         /// <param name="mealType">Type of the meal.</param>
         /// <param name="cookingTime">The cooking time.</param>
@@ -33,6 +33,7 @@ namespace McDonaldsWorkflow.Models
             _cookingTime = cookingTime;
             _lockObj = new object();
             _company = McDonalds.Instance;
+            ThreadPool.QueueUserWorkItem((object obj) => DoWork());
         }
 
         #endregion
@@ -40,7 +41,7 @@ namespace McDonaldsWorkflow.Models
         #region Private Methods
 
         /// <summary>
-        /// Cook starts to prepare his specific meal
+        ///     Cook starts to prepare his specific meal
         /// </summary>
         private void CookMeal()
         {
@@ -54,7 +55,7 @@ namespace McDonaldsWorkflow.Models
         }
 
         /// <summary>
-        /// Cook has a rest
+        ///     Cook has a rest
         /// </summary>
         private void Rest()
         {

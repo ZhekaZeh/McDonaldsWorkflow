@@ -1,13 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Threading;
+﻿using System.Threading;
 
-namespace McDonaldsWorkflow.Models
+namespace McDonaldsWorkflow.Models.Interfaces
 {
     interface ICashier
     {
         int Takings { get; }
         int LineCount { get; }
-        Queue<Client> Line { get; set; }
+        void StandOnLine(Client client);
         AutoResetEvent WaitHandle { get; }
     }
 }

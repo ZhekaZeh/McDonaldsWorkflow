@@ -7,7 +7,7 @@ namespace McDonaldsWorkflow.Models.Interfaces
         bool IsEndOfDay { get; }
         void EndTheDay();
 
-        List<ICook> Cooks { get; }
+        //List<ICook> Cooks { get; }
 
         void StartWork();
     }

@@ -8,7 +8,7 @@ namespace McDonaldsWorkflow.Models
         #region Properties
         public Dictionary<MealTypes, int> Order { get; set; }
 
-        //for test
+        //For test only
         public int MealCount { get; set; }
         #endregion
 
