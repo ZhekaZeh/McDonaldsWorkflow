@@ -87,7 +87,7 @@ namespace McDonaldsWorkflow.Models
             } while (true);
 
             _line.Dequeue();
-            Console.WriteLine(@"        Client {0} go away!!!", _currentClient.clientID);
+            Console.WriteLine(@"Client {0} go away!!!", _currentClient.clientID);
         }
 
         /// <summary>
@@ -138,7 +138,11 @@ namespace McDonaldsWorkflow.Models
 
         public void StandOnLine(Client client)
         {
-            _line.Enqueue(client);
+            lock (_lockObj)
+            {
+                _line.Enqueue(client);
+            }
+
             Console.WriteLine(@"Client{0} stand in line.", client.clientID);
             _waitHandle.Set();
         }

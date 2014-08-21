@@ -61,11 +61,11 @@ namespace McDonaldsWorkflow.Models
 
             //foreach (MealTypes mealType in Enum.GetValues(typeof(MealTypes)))
             //{
-            //    _cooks.Add(new Cook(mealType, Constants.CookingTimeBurgerMs));
+            //    _cooks.Add(new Cook(mealType, Constants.CookingTimeHamburgerMs));
             //}
 
 
-            _cooks.Add(new Cook(MealTypes.Hamburger, Constants.CookingTimeBurgerMs));
+            _cooks.Add(new Cook(MealTypes.Hamburger, Constants.CookingTimeHamburgerMs));
 
             for (var i = 1; i <= Constants.CashierCount; i++)
             {
@@ -84,15 +84,20 @@ namespace McDonaldsWorkflow.Models
         /// </summary>
         private void GenerateClients()
         {
-        // Must be use LINQ. This method will be fixed
             Thread.Sleep(500);
             Console.WriteLine(@"Client went to McDonalds.");
             Thread.Sleep(2000);
+            ICashier[] selectedCashier = {_cashiers[0]};
             var rnd = new Random(); // for test only
 
+            foreach (var cashier in _cashiers.Where(cashier => cashier.LineCount < selectedCashier[0].LineCount))
+            {
+                selectedCashier[0] = cashier;
+            }
+            
             lock (_lockObj)
             {
-                _cashiers[0].StandOnLine(new Client(5, rnd.Next(99)));
+                selectedCashier[0].StandOnLine(new Client(5, rnd.Next(99)));
             }
             
         }

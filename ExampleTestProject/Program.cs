@@ -14,7 +14,7 @@ namespace ExampleTestProject
         {
             #region Test cook
 
-            //var cook = new Cook(MealTypes.Hamburger, Constants.CookingTimeBurgerMs);
+            //var cook = new Cook(MealTypes.Hamburger, Constants.CookingTimeHamburgerMs);
             //var cookThread = new Thread(cook.DoWork) {IsBackground = true};
             //cookThread.Start();
 
