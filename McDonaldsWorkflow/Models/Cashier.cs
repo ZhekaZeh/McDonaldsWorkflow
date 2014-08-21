@@ -57,14 +57,14 @@ namespace McDonaldsWorkflow.Models
         public void TryToGatherOrder()
         {
             _currentClient = _line.Peek();
-            do
-            {
+            //do
+            //{
                 int count;
                 //TODO: REWORK THE WHOLE METHOD!!!
-                if (_cooks[0].TryGetMeals(_currentClient.MealCount, out count)) break;
+                _cooks[0].TryGetMeals(_currentClient.MealCount, out count);
                 _currentClient.MealCount -= count;
                 Thread.Sleep(500);
-            } while (true);
+            //} while (!IsEndOfDay);
 
             _line.Dequeue();
             Console.WriteLine(@"          Client {0} go away!!!", _currentClient.ClientId);

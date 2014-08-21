@@ -104,7 +104,7 @@ namespace McDonaldsWorkflow.Models
             var currentClient = new Client(5, rnd.Next(99));
 
             Console.WriteLine(@"Client went to McDonalds.");
-            Thread.Sleep(2200);
+            Thread.Sleep(Constants.ClientGenerationTimeoutMs);
 
             currentClient.StandOnLine(_cashiers);
         }

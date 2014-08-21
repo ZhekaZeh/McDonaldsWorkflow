@@ -9,12 +9,10 @@ namespace McDonaldsWorkflow.Models
         public const int MealGrabTimeMs = 1000;
         public const int InitialTakings = 0;
         public const int CashierCount = 3;
+        public const int MenuSize = 2;
+        public const int ClientGenerationTimeoutMs = 500;
 
-        //public const int CookingTimeHamburgerMs = 300;
-        //public const int CookingTimeCheeseburgerMs = 1500;
-        //public const int CookingTimeMacChickenMs = 1000;
-        //public const int CookingTimeChippedPotatoMs = 2000;
-        //public const int CookingTimeIceCreamMs = 1000;
+        #region Dictionaries
 
         public static readonly Dictionary<MealTypes, int> CookingTimesMs = new Dictionary<MealTypes, int>()
         {
@@ -34,6 +32,6 @@ namespace McDonaldsWorkflow.Models
             {MealTypes.IceCream, 2}
         };
 
-        public const int MenuSize = 2;
+        #endregion
     }
 }
