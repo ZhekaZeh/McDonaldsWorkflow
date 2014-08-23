@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Security.Cryptography;
 using System.Threading;
 using McDonaldsWorkflow.Models.Interfaces;
 
@@ -7,13 +10,14 @@ namespace McDonaldsWorkflow.Models
 {
     public class Cashier : Employee, ICashier
     {
-
         #region Private fields
 
-        private int _takings;
+        private object _lock;
+        private double _takings;
         private Queue<Client> _line;
         private Client _currentClient;
         private readonly List<ICook> _cooks;
+        private Dictionary<MealTypes, int> _restOrder; 
      
         #endregion
  
@@ -28,9 +32,52 @@ namespace McDonaldsWorkflow.Models
         public Cashier(int id, List<ICook> cooks):base(String.Format("Cashier #{0}", id))
         {
             Id = id;
+            _cooks = cooks;
+            _lock = new object();
             _line = new Queue<Client>();
             _takings = Constants.InitialTakings;
-            _cooks = cooks;
+            _restOrder = new Dictionary<MealTypes, int>();
+        }
+
+        #endregion
+
+        #region Private methods
+
+        private void GrabMissingMeals()
+        {
+            if (_restOrder.Count > 0)
+            {
+                while (_restOrder.Max(x => x.Value) > 0)
+                {
+                    for (int i = 0; i < _restOrder.Count - 1; i++)
+                    {
+
+                        int taken;
+                        var cook = _cooks.Find(x => x.MealType == (MealTypes) i);
+                        if (cook.TryGetMeals(_restOrder[(MealTypes) i], out taken)) //sometimes trow exeption here
+                            _restOrder[(MealTypes) i] = 0;
+                        else
+                        {
+                            _restOrder[(MealTypes) i] -= taken;
+                        }
+                    }
+                }
+            }
+            Console.WriteLine(@"Client go away------------------------------------------------");
+        }
+
+        /// <summary>
+        ///     Takes cash from client and add to takings
+        /// </summary>
+        private void GetMoney()
+        {
+            double cash = _currentClient.Order.Sum(orderItems => Constants.PriceList[orderItems.Key]);
+            lock (_lockObj)
+            {
+                _takings += cash;
+            }
+
+            Console.WriteLine(@"      Cashier {2} Take money $$$: {0}........... takings = {1}", cash, _takings, this.Id);
         }
 
         #endregion
@@ -38,43 +85,28 @@ namespace McDonaldsWorkflow.Models
         #region Public Methods
 
         /// <summary>
-        ///     Takes cash from client and add to takings
-        /// </summary>
-        /// <param name="cash"></param>
-        public void GetMoney(int cash)
-        {
-            var _lock = new object();
-            lock (_lock)
-            {
-                _takings += cash;
-            }
-            
-        }
-
-        /// <summary>
         ///     Tries to gather next client's order
         /// </summary>
         public void TryToGatherOrder()
         {
-            _currentClient = _line.Peek();
-            //do
-            //{
-                int count;
-                //TODO: REWORK THE WHOLE METHOD!!!
-                _cooks[0].TryGetMeals(_currentClient.MealCount, out count);
-                _currentClient.MealCount -= count;
-                Thread.Sleep(500);
-            //} while (!IsEndOfDay);
+            _currentClient = _line.Dequeue();
 
-            _line.Dequeue();
-            Console.WriteLine(@"          Client {0} go away!!!", _currentClient.ClientId);
+            foreach (KeyValuePair<MealTypes, int> mealCountPair in _currentClient.Order)
+            {
+                int takenCount;
+                var cook = _cooks.Find(x => x.MealType == mealCountPair.Key);
+
+                Console.WriteLine(@"  Cashier {0} try to get {1} {2}........", Id, mealCountPair.Value, mealCountPair.Key);
+
+                if (!cook.TryGetMeals(mealCountPair.Value, out takenCount)) _restOrder.Add(mealCountPair.Key, mealCountPair.Value);
+            }
         }
 
         #endregion
 
         #region ICashier implementation
 
-        public int Takings
+        public double Takings
         {
             get
             {
@@ -122,7 +154,7 @@ namespace McDonaldsWorkflow.Models
         protected override bool HasSomethingToDo()
         {
             //check if the table is full
-            lock (_lockObj)
+            lock (_lock)
             {
                 return LineCount > 0;
             }
@@ -135,13 +167,10 @@ namespace McDonaldsWorkflow.Models
         {
             TryToGatherOrder();
             GrabMissingMeals();
+            GetMoney();
+            _restOrder.Clear();
         }
 
         #endregion
-
-        private void GrabMissingMeals()
-        {
-            //TODO: Implement!!!
-        }
     }
 }

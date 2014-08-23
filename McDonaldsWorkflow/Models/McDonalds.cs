@@ -75,7 +75,7 @@ namespace McDonaldsWorkflow.Models
                 var cook = new Cook(mealType, Constants.CookingTimesMs[mealType]);
                 _cooks.Add(cook);
                 _menu.Add(mealType, Constants.PriceList[mealType]);
-                ThreadPool.QueueUserWorkItem((object obj) => cook.DoWork());
+                ThreadPool.QueueUserWorkItem( obj => cook.DoWork());
                  // increment meal type to switch to new meal
             }
         }
@@ -91,23 +91,24 @@ namespace McDonaldsWorkflow.Models
             }
         }
 
-        #endregion
-
-        #region Public Methods
-
         /// <summary>
         ///     Logic for generate random clients
         /// </summary>
         private void GenerateClients()
         {
             var rnd = new Random();
-            var currentClient = new Client(5, rnd.Next(99));
+            var currentClient = new Client(_menu, rnd.Next(100));
 
             Console.WriteLine(@"Client went to McDonalds.");
+
             Thread.Sleep(Constants.ClientGenerationTimeoutMs);
 
             currentClient.StandOnLine(_cashiers);
         }
+
+        #endregion
+
+        #region Public Methods
 
         /// <summary>
         ///     Starts McDonald's workflow

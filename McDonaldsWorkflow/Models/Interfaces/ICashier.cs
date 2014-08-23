@@ -2,7 +2,7 @@
 {
     public interface ICashier: IEmployee
     {
-        int Takings { get; }
+        double Takings { get; }
         int LineCount { get; }
         void StandOnLine(Client client);
     }

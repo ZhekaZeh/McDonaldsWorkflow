@@ -10,30 +10,41 @@ namespace McDonaldsWorkflow.Models
     {
         #region Private fields
 
+        private readonly Dictionary<MealTypes, double> _menu;
+        private Random _random;
 
         #endregion
-
 
         #region Properties
-        public Dictionary<MealTypes, int> Order { get; set; }
 
-        //For test only MealCount. Must be Menu instead MealCount
-        public int MealCount { get; set; }
+        public int ClientId { get; private set; }
 
-        public int ClientId { get; set; }
+        public Dictionary<MealTypes, int> Order { get; private set; }
+
         #endregion
 
-        public Client(int mealCount, int id)
-        {
-            MealCount = mealCount;
+        #region Constructor
+
+        public Client(Dictionary<MealTypes, double> menu, int id)
+        { 
             ClientId = id;
+            _menu = menu;
+            GenerateOrder();
         }
+
+        #endregion
 
         #region Public methods
 
-        public void MakeOrder()
+        public void GenerateOrder()
         {
-
+            Order = new Dictionary<MealTypes, int>();
+            _random = new Random();
+            for (int i = 0; i < _menu.Count; i++)
+            {
+                var mealType = (MealTypes)i; 
+                Order.Add(mealType, _random.Next(Constants.MinMealCountClientOrder, Constants.MaxMealCountClientOrder));
+            }
         }
 
         /// <summary>

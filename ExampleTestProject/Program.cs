@@ -41,7 +41,7 @@ namespace ExampleTestProject
 
             #region Test_2
 
-            ThreadPool.QueueUserWorkItem((object obj) => McDonalds.Instance.StartWork());
+            ThreadPool.QueueUserWorkItem(obj => McDonalds.Instance.StartWork());
             Console.ReadLine();
             McDonalds.Instance.EndTheDay();
 
