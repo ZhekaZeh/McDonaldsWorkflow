@@ -11,11 +11,12 @@ namespace McDonaldsWorkflow.Models
         public const int MinMealCountClientOrder = 0;
         public const int MaxMealCountClientOrder = 4;
 
-        public const int MealGrabTimeMs = 1000;
+        public const int MealGrabTimeMs = 500;
         public const int RestTimeBeforeWorkDayMs = 6000;
         public const int ClientGenerationTimeoutMs = 1500;
 
         public const double InitialTakings = 0.0;
+        public const int CashierGrabMealRetryTimeoutMs = 2000;
 
         #region Dictionaries
 
@@ -36,6 +37,7 @@ namespace McDonaldsWorkflow.Models
             {MealTypes.ChippedPotato, 10.4},
             {MealTypes.IceCream, 11.5}
         };
+        
 
         #endregion
     }

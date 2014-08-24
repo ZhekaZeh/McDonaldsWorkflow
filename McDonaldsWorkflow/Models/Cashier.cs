@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using McDonaldsWorkflow.Models.Interfaces;
 
 namespace McDonaldsWorkflow.Models
@@ -9,7 +10,7 @@ namespace McDonaldsWorkflow.Models
     {
         #region Private fields
 
-        private readonly List<ICook> _cooks;
+        private readonly Dictionary<MealTypes , ICook> _cooks;
         private readonly Queue<Client> _line;
         private readonly object _lock;
         private readonly Dictionary<MealTypes, int> _restOrder;
@@ -29,7 +30,7 @@ namespace McDonaldsWorkflow.Models
         public Cashier(int id, List<ICook> cooks) : base(String.Format("Cashier #{0}", id))
         {
             Id = id;
-            _cooks = cooks;
+            _cooks = cooks.ToDictionary(cook => cook.MealType);
             _lock = new object();
             _line = new Queue<Client>();
             _takings = Constants.InitialTakings;
@@ -42,26 +43,27 @@ namespace McDonaldsWorkflow.Models
 
         private void GrabMissingMeals()
         {
-            if (_restOrder.Count > 0)
+            while(_restOrder.Count > 0)
             {
-                while (_restOrder.Max(x => x.Value) > 0)
+                Thread.Sleep(Constants.CashierGrabMealRetryTimeoutMs);
+                Console.WriteLine(@"Cashier {0} has {1} pending meals. Retrying....");
+
+                for(int i=0; i< _restOrder.Count; i++)
                 {
-                    for (int i = 0; i < _restOrder.Count - 1; i++)
+                    var missingMeal = _restOrder.ElementAt(i);
+                    var cook = _cooks[missingMeal.Key];
+                    int takenCount;
+                    cook.TryGetMeals(missingMeal.Value, out takenCount);
+                    _restOrder[missingMeal.Key] -= takenCount;
+
+                    if (_restOrder[missingMeal.Key] == 0)
                     {
-                        int taken;
-                        ICook cook = _cooks.Find(x => x.MealType == (MealTypes) i);
-                        if (cook.TryGetMeals(_restOrder[(MealTypes) i], out taken))
-                            //sometimes trow exeption here 'KeyNotFoundExeption'
-                            _restOrder[(MealTypes) i] = 0;
-                        else
-                        {
-                            _restOrder[(MealTypes) i] -= taken;
-                        }
+                        _restOrder.Remove(missingMeal.Key);
                     }
                 }
             }
-            Console.WriteLine(@"Client {0} go away-------------------------------------------------",
-                _currentClient.ClientId);
+
+            Console.WriteLine(@"Order for client {0} is completed.", _currentClient.ClientId);
         }
 
         /// <summary>
@@ -92,7 +94,9 @@ namespace McDonaldsWorkflow.Models
             foreach (var mealCountPair in _currentClient.Order)
             {
                 int takenCount;
-                ICook cook = _cooks.Find(x => x.MealType == mealCountPair.Key);
+                //ICook cook = _cooks.Find(x => x.MealType == mealCountPair.Key);
+
+                ICook cook = _cooks[mealCountPair.Key];
 
                 Console.WriteLine(@"  Cashier {0} try to get {1} {2}........", Id, mealCountPair.Value,
                     mealCountPair.Key);
