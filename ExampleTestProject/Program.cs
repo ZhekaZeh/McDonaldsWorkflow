@@ -46,10 +46,10 @@ namespace ExampleTestProject
             do
             {
                 info = Console.ReadKey();
-            } while (info.Key != ConsoleKey.Escape);
+            } while (info.Key != ConsoleKey.Escape); // Press Escape for simulate EndOfTheDay
 
             McDonalds.Instance.EndTheDay();
-            Thread.Sleep(5000);
+            Thread.Sleep(7000);
             Manager.ShowTakings();
             Console.ReadLine();
 

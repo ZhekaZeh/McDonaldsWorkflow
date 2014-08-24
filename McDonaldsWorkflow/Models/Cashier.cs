@@ -98,7 +98,7 @@ namespace McDonaldsWorkflow.Models
                     mealCountPair.Key);
 
                 if (!cook.TryGetMeals(mealCountPair.Value, out takenCount))
-                    _restOrder.Add(mealCountPair.Key, mealCountPair.Value);
+                    _restOrder.Add(mealCountPair.Key, mealCountPair.Value - takenCount);
             }
         }
 
