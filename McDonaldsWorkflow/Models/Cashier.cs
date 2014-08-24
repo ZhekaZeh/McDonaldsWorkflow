@@ -43,24 +43,31 @@ namespace McDonaldsWorkflow.Models
 
         private void GrabMissingMeals()
         {
+            var changedEntries = new Dictionary<MealTypes, int>();
+
             while(_restOrder.Count > 0)
             {
                 Thread.Sleep(Constants.CashierGrabMealRetryTimeoutMs);
                 Console.WriteLine(@"Cashier {0} has {1} pending meals. Retrying....");
 
-                for(int i=0; i< _restOrder.Count; i++)
+                foreach (var orderEntry in _restOrder.Where(x => x.Value > 0))
                 {
-                    var missingMeal = _restOrder.ElementAt(i);
-                    var cook = _cooks[missingMeal.Key];
+                    var cook = _cooks[orderEntry.Key];
                     int takenCount;
-                    cook.TryGetMeals(missingMeal.Value, out takenCount);
-                    _restOrder[missingMeal.Key] -= takenCount;
+                    cook.TryGetMeals(orderEntry.Value, out takenCount);
+                    changedEntries.Add(orderEntry.Key, _restOrder[orderEntry.Key] - takenCount);
+                }
 
-                    if (_restOrder[missingMeal.Key] == 0)
+                //clean _restOrder collection from outside to avoid CollectionChanged exception
+                foreach (var changedEntry in changedEntries)
+                {
+                    _restOrder[changedEntry.Key] = changedEntry.Value;
+                    if (changedEntry.Value == 0)
                     {
-                        _restOrder.Remove(missingMeal.Key);
+                        _restOrder.Remove(changedEntry.Key);
                     }
                 }
+                changedEntries.Clear();
             }
 
             Console.WriteLine(@"Order for client {0} is completed.", _currentClient.ClientId);
