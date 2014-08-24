@@ -44,8 +44,9 @@ namespace McDonaldsWorkflow.Models
         private void GrabMissingMeals()
         {
             var changedEntries = new Dictionary<MealTypes, int>();
-
-            while(_restOrder.Count > 0)
+            
+            //check for EndOfDay to prevent infinite loops
+            while(_restOrder.Count > 0 && !IsEndOfDay)
             {
                 Thread.Sleep(Constants.CashierGrabMealRetryTimeoutMs);
                 Console.WriteLine(@"Cashier {0} has {1} pending meals. Retrying....");
