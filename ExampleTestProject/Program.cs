@@ -4,13 +4,12 @@ using McDonaldsWorkflow.Models;
 
 namespace ExampleTestProject
 {
-    class Program
+    internal class Program
     {
         /// <summary>
-        /// In this example you can create multiple instances
+        ///     In this example you can create multiple instances
         /// </summary>
-        /// <param name="args">The arguments.</param>
-        static void Main(string[] args)
+        private static void Main()
         {
             #region Test cook
 
@@ -41,10 +40,17 @@ namespace ExampleTestProject
 
             #region Test_2
 
-            ThreadPool.QueueUserWorkItem(obj => McDonalds.Instance.StartWork());
-            Console.ReadLine();
-            McDonalds.Instance.EndTheDay();
+            ConsoleKeyInfo info;
 
+            ThreadPool.QueueUserWorkItem(obj => McDonalds.Instance.StartWork());
+            do
+            {
+                info = Console.ReadKey();
+            } while (info.Key != ConsoleKey.Escape);
+
+            McDonalds.Instance.EndTheDay();
+            Thread.Sleep(5000);
+            Manager.ShowTakings();
             Console.ReadLine();
 
             #endregion

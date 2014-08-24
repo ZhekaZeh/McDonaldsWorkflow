@@ -4,22 +4,22 @@ using McDonaldsWorkflow.Models.Interfaces;
 
 namespace McDonaldsWorkflow.Models
 {
-    public abstract class Employee: IEmployee
+    public abstract class Employee : IEmployee
     {
         #region Protected members
 
-        protected readonly AutoResetEvent _waitHandle;
-        protected bool _isEndOfDay;
+        protected readonly string _employeeName;
         protected readonly object _endOfDayLocker;
         protected readonly object _lockObj;
-        protected readonly string _employeeName;
+        protected readonly AutoResetEvent _waitHandle;
+        protected bool _isEndOfDay;
 
         #endregion
 
         #region Constructor
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Employee"/> class.
+        ///     Initializes a new instance of the <see cref="Employee" /> class.
         /// </summary>
         protected Employee(string employeeName)
         {
@@ -35,10 +35,10 @@ namespace McDonaldsWorkflow.Models
         #region IEmployee implementation
 
         /// <summary>
-        /// Gets or sets a value indicating whether this instance is end of day.
+        ///     Gets or sets a value indicating whether this instance is end of day.
         /// </summary>
         /// <value>
-        /// <c>true</c> if this instance is end of day; otherwise, <c>false</c>.
+        ///     <c>true</c> if this instance is end of day; otherwise, <c>false</c>.
         /// </value>
         public bool IsEndOfDay
         {
@@ -96,25 +96,25 @@ namespace McDonaldsWorkflow.Models
         }
 
         /// <summary>
-        /// Goes home.
+        ///     Goes home.
         /// </summary>
-        private void GoHome()
+        protected virtual void GoHome()
         {
             Console.WriteLine(@"{0} is going home. Bye bye", _employeeName);
         }
 
         #endregion
-        
+
         #region Abstract methods
 
         /// <summary>
-        /// Determines whether [has something to do].
+        ///     Determines whether [has something to do].
         /// </summary>
         /// <returns></returns>
         protected abstract bool HasSomethingToDo();
 
         /// <summary>
-        /// Works this instance.
+        ///     Works this instance.
         /// </summary>
         protected abstract void Work();
 

@@ -8,10 +8,10 @@ namespace McDonaldsWorkflow.Models
     {
         #region Private fields
 
-        private int _mealCount;
-        private readonly int _maxMealCount;
         private readonly int _cookingTime;
         private readonly int _grabMealTime;
+        private readonly int _maxMealCount;
+        private int _mealCount;
 
         #endregion
 
@@ -22,7 +22,7 @@ namespace McDonaldsWorkflow.Models
         /// </summary>
         /// <param name="mealType">Type of the meal.</param>
         /// <param name="cookingTime">The cooking time.</param>
-        public Cook(MealTypes mealType, int cookingTime):base(String.Format("{0} cook", mealType))
+        public Cook(MealTypes mealType, int cookingTime) : base(String.Format("{0} cook", mealType))
         {
             _mealCount = Constants.InitialMealCount;
             _maxMealCount = Constants.MaxMealCount;
@@ -39,7 +39,7 @@ namespace McDonaldsWorkflow.Models
         ///     Gets type of the meal.
         /// </summary>
         /// <value>
-        /// The type of the meal.
+        ///     The type of the meal.
         /// </value>
         public MealTypes MealType { get; private set; }
 
@@ -52,7 +52,7 @@ namespace McDonaldsWorkflow.Models
         public bool TryGetMeals(int requestedCount, out int takenCount)
         {
             Console.WriteLine(@"{0} Trying to take {1} {2} from the table...", DateTime.Now, requestedCount, MealType);
-            
+
             lock (_lockObj)
             {
                 Thread.Sleep(_grabMealTime);
@@ -82,18 +82,17 @@ namespace McDonaldsWorkflow.Models
                 return success;
             }
         }
-        
+
         #endregion
 
         #region Employee abstract methods implementation
 
         /// <summary>
-        /// Determines whether the table is full or nor.
+        ///     Determines whether the table is full or nor.
         /// </summary>
         /// <returns>true if the table is full, false otherwise</returns>
         protected override bool HasSomethingToDo()
         {
-            //check if the table is full
             lock (_lockObj)
             {
                 return _mealCount < _maxMealCount;
@@ -101,7 +100,7 @@ namespace McDonaldsWorkflow.Models
         }
 
         /// <summary>
-        /// Works this instance.
+        ///     Works this instance.
         /// </summary>
         protected override void Work()
         {

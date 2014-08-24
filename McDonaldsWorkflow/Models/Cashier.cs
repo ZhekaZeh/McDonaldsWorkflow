@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Threading;
 using McDonaldsWorkflow.Models.Interfaces;
 
 namespace McDonaldsWorkflow.Models
@@ -12,15 +9,15 @@ namespace McDonaldsWorkflow.Models
     {
         #region Private fields
 
-        private object _lock;
-        private double _takings;
-        private Queue<Client> _line;
-        private Client _currentClient;
         private readonly List<ICook> _cooks;
-        private Dictionary<MealTypes, int> _restOrder; 
-     
+        private readonly Queue<Client> _line;
+        private readonly object _lock;
+        private readonly Dictionary<MealTypes, int> _restOrder;
+        private Client _currentClient;
+        private double _takings;
+
         #endregion
- 
+
         #region Properties
 
         public int Id { get; private set; }
@@ -29,7 +26,7 @@ namespace McDonaldsWorkflow.Models
 
         #region Constructor
 
-        public Cashier(int id, List<ICook> cooks):base(String.Format("Cashier #{0}", id))
+        public Cashier(int id, List<ICook> cooks) : base(String.Format("Cashier #{0}", id))
         {
             Id = id;
             _cooks = cooks;
@@ -51,10 +48,10 @@ namespace McDonaldsWorkflow.Models
                 {
                     for (int i = 0; i < _restOrder.Count - 1; i++)
                     {
-
                         int taken;
-                        var cook = _cooks.Find(x => x.MealType == (MealTypes) i);
-                        if (cook.TryGetMeals(_restOrder[(MealTypes) i], out taken)) //sometimes trow exeption here
+                        ICook cook = _cooks.Find(x => x.MealType == (MealTypes) i);
+                        if (cook.TryGetMeals(_restOrder[(MealTypes) i], out taken))
+                            //sometimes trow exeption here 'KeyNotFoundExeption'
                             _restOrder[(MealTypes) i] = 0;
                         else
                         {
@@ -63,7 +60,8 @@ namespace McDonaldsWorkflow.Models
                     }
                 }
             }
-            Console.WriteLine(@"Client go away------------------------------------------------");
+            Console.WriteLine(@"Client {0} go away-------------------------------------------------",
+                _currentClient.ClientId);
         }
 
         /// <summary>
@@ -71,13 +69,13 @@ namespace McDonaldsWorkflow.Models
         /// </summary>
         private void GetMoney()
         {
-            double cash = _currentClient.Order.Sum(orderItems => Constants.PriceList[orderItems.Key]);
+            double cash = _currentClient.Order.Sum(orderItems => (Constants.PriceList[orderItems.Key]*orderItems.Value));
             lock (_lockObj)
             {
                 _takings += cash;
             }
-
-            Console.WriteLine(@"      Cashier {2} Take money $$$: {0}........... takings = {1}", cash, _takings, this.Id);
+            Console.WriteLine(@"{0} take money: cash = {1}, takings = {2}. $$$$$$$$$$$$$$$$$$$$$$$$", _employeeName,
+                cash, _takings);
         }
 
         #endregion
@@ -91,14 +89,16 @@ namespace McDonaldsWorkflow.Models
         {
             _currentClient = _line.Dequeue();
 
-            foreach (KeyValuePair<MealTypes, int> mealCountPair in _currentClient.Order)
+            foreach (var mealCountPair in _currentClient.Order)
             {
                 int takenCount;
-                var cook = _cooks.Find(x => x.MealType == mealCountPair.Key);
+                ICook cook = _cooks.Find(x => x.MealType == mealCountPair.Key);
 
-                Console.WriteLine(@"  Cashier {0} try to get {1} {2}........", Id, mealCountPair.Value, mealCountPair.Key);
+                Console.WriteLine(@"  Cashier {0} try to get {1} {2}........", Id, mealCountPair.Value,
+                    mealCountPair.Key);
 
-                if (!cook.TryGetMeals(mealCountPair.Value, out takenCount)) _restOrder.Add(mealCountPair.Key, mealCountPair.Value);
+                if (!cook.TryGetMeals(mealCountPair.Value, out takenCount))
+                    _restOrder.Add(mealCountPair.Key, mealCountPair.Value);
             }
         }
 
@@ -129,7 +129,7 @@ namespace McDonaldsWorkflow.Models
         }
 
         /// <summary>
-        /// 
+        ///     Adds client to queue
         /// </summary>
         /// <param name="client"></param>
         public void StandOnLine(Client client)
@@ -139,21 +139,20 @@ namespace McDonaldsWorkflow.Models
                 _line.Enqueue(client);
             }
 
-            Console.WriteLine(@"Client{0} stand in line.", client.ClientId);
+            Console.WriteLine(@"Client{0} stand in line to {1}", client.ClientId, _employeeName);
             _waitHandle.Set();
         }
 
         #endregion
 
-        #region Employee abstract methods implementation
+        #region Employee abstract and virtual methods implementation
 
         /// <summary>
-        /// Determines whether the table is full or nor.
+        ///     Determines whether somebody exist in line or nor.
         /// </summary>
-        /// <returns>true if the table is full, false otherwise</returns>
+        /// <returns>true if somebody exist, false otherwise</returns>
         protected override bool HasSomethingToDo()
         {
-            //check if the table is full
             lock (_lock)
             {
                 return LineCount > 0;
@@ -161,7 +160,7 @@ namespace McDonaldsWorkflow.Models
         }
 
         /// <summary>
-        /// Works this instance.
+        ///     Works this instance.
         /// </summary>
         protected override void Work()
         {
@@ -169,6 +168,14 @@ namespace McDonaldsWorkflow.Models
             GrabMissingMeals();
             GetMoney();
             _restOrder.Clear();
+        }
+
+        protected override void GoHome()
+        {
+            Manager.GetTakings(Takings);
+            Console.WriteLine(@"{0} took his daily takings to manager {1}", _employeeName, Takings);
+
+            Console.WriteLine(@"{0} is going home. Bye bye", _employeeName);
         }
 
         #endregion

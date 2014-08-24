@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using McDonaldsWorkflow.Models.Interfaces;
@@ -11,7 +10,6 @@ namespace McDonaldsWorkflow.Models
         #region Private fields
 
         private readonly Dictionary<MealTypes, double> _menu;
-        private Random _random;
 
         #endregion
 
@@ -26,9 +24,10 @@ namespace McDonaldsWorkflow.Models
         #region Constructor
 
         public Client(Dictionary<MealTypes, double> menu, int id)
-        { 
+        {
             ClientId = id;
             _menu = menu;
+            Order = new Dictionary<MealTypes, int>();
             GenerateOrder();
         }
 
@@ -36,25 +35,27 @@ namespace McDonaldsWorkflow.Models
 
         #region Public methods
 
+        /// <summary>
+        ///     Generates random order appropriate to menu
+        /// </summary>
         public void GenerateOrder()
         {
-            Order = new Dictionary<MealTypes, int>();
-            _random = new Random();
+            var random = new Random();
             for (int i = 0; i < _menu.Count; i++)
             {
-                var mealType = (MealTypes)i; 
-                Order.Add(mealType, _random.Next(Constants.MinMealCountClientOrder, Constants.MaxMealCountClientOrder));
+                var mealType = (MealTypes) i;
+                Order.Add(mealType, random.Next(Constants.MinMealCountClientOrder, Constants.MaxMealCountClientOrder));
             }
         }
 
         /// <summary>
-        ///     Chooses shortest line and stands on it. 
+        ///     Chooses shortest line and stands on it.
         ///     Also it calls cashier's method StandOnLine which adds him to queue.
         /// </summary>
         /// <param name="cashiers"></param>
         public void StandOnLine(List<ICashier> cashiers)
         {
-            var chosenCachier = cashiers.OrderBy(cashier => cashier.LineCount).First();
+            ICashier chosenCachier = cashiers.OrderBy(cashier => cashier.LineCount).First();
 
             chosenCachier.StandOnLine(this);
         }
