@@ -113,6 +113,15 @@ namespace McDonaldsWorkflow.Models
             }
         }
 
+        /// <summary>
+        ///     Performs next instuctions before current thread(employee) would be killed
+        /// </summary>
+        protected override void FinishedWork()
+        {
+            while (HasSomethingToDo()) Work();
+            IsFinishedWork = true;
+        }
+
         #endregion
     }
 }

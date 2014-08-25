@@ -61,12 +61,14 @@ namespace McDonaldsWorkflow.Models
             }
         }
 
+        public bool IsFinishedWork { get; set; }
+
         /// <summary>
         ///     Cook's work logic.
         /// </summary>
         public void DoWork()
         {
-            while (!IsEndOfDay)
+            while (!IsEndOfDay && !IsFinishedWork)
             {
                 if (HasSomethingToDo())
                 {
@@ -77,8 +79,7 @@ namespace McDonaldsWorkflow.Models
                     Rest();
                 }
             }
-
-            GoHome();
+            FinishedWork();
         }
 
         #endregion
@@ -95,14 +96,6 @@ namespace McDonaldsWorkflow.Models
             Console.WriteLine(@"{0} finished resting.", _employeeName);
         }
 
-        /// <summary>
-        ///     Goes home.
-        /// </summary>
-        protected virtual void GoHome()
-        {
-            Console.WriteLine(@"{0} is going home. Bye bye", _employeeName);
-        }
-
         #endregion
 
         #region Abstract methods
@@ -117,6 +110,11 @@ namespace McDonaldsWorkflow.Models
         ///     Works this instance.
         /// </summary>
         protected abstract void Work();
+
+        /// <summary>
+        ///     The work was finished.
+        /// </summary>
+        protected abstract void FinishedWork();
 
         #endregion
     }

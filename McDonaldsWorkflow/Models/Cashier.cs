@@ -10,7 +10,7 @@ namespace McDonaldsWorkflow.Models
     {
         #region Private fields
 
-        private readonly Dictionary<MealTypes , ICook> _cooks;
+        private readonly Dictionary<MealTypes, ICook> _cooks;
         private readonly Queue<Client> _line;
         private readonly object _lock;
         private readonly Dictionary<MealTypes, int> _restOrder;
@@ -30,6 +30,7 @@ namespace McDonaldsWorkflow.Models
         public Cashier(int id, List<ICook> cooks) : base(String.Format("Cashier #{0}", id))
         {
             Id = id;
+            IsFinishedWork = false;
             _cooks = cooks.ToDictionary(cook => cook.MealType);
             _lock = new object();
             _line = new Queue<Client>();
@@ -44,19 +45,18 @@ namespace McDonaldsWorkflow.Models
         private void GrabMissingMeals()
         {
             var changedEntries = new Dictionary<MealTypes, int>();
-            
-            //check for EndOfDay to prevent infinite loops
-            while(_restOrder.Count > 0 && !IsEndOfDay)
+
+            while (_restOrder.Count > 0)
             {
                 Thread.Sleep(Constants.CashierGrabMealRetryTimeoutMs);
-                Console.WriteLine(@"Cashier {0} has {1} pending meals. Retrying....");
+                Console.WriteLine(@"Cashier {0} has pending meals. Retrying....", _employeeName);
 
                 foreach (var orderEntry in _restOrder.Where(x => x.Value > 0))
                 {
-                    var cook = _cooks[orderEntry.Key];
+                    ICook cook = _cooks[orderEntry.Key];
                     int takenCount;
                     cook.TryGetMeals(orderEntry.Value, out takenCount);
-                    changedEntries.Add(orderEntry.Key, _restOrder[orderEntry.Key] - takenCount);
+                    changedEntries.Add(orderEntry.Key, orderEntry.Value - takenCount);
                 }
 
                 //clean _restOrder collection from outside to avoid CollectionChanged exception
@@ -70,12 +70,12 @@ namespace McDonaldsWorkflow.Models
                 }
                 changedEntries.Clear();
             }
-
+            _restOrder.Clear();
             Console.WriteLine(@"Order for client {0} is completed.", _currentClient.ClientId);
         }
 
         /// <summary>
-        ///     Takes cash from client and add to takings
+        ///     Takes cash from client and adds to takings
         /// </summary>
         private void GetMoney()
         {
@@ -127,6 +127,7 @@ namespace McDonaldsWorkflow.Models
                     return _takings;
                 }
             }
+            set { _takings = value; }
         }
 
         public int LineCount
@@ -148,7 +149,7 @@ namespace McDonaldsWorkflow.Models
         {
             lock (_lockObj)
             {
-                _line.Enqueue(client);
+                if (!IsEndOfDay) _line.Enqueue(client);
             }
 
             Console.WriteLine(@"Client{0} stand in line to {1}", client.ClientId, _employeeName);
@@ -157,7 +158,7 @@ namespace McDonaldsWorkflow.Models
 
         #endregion
 
-        #region Employee abstract and virtual methods implementation
+        #region Employee abstract methods implementation
 
         /// <summary>
         ///     Determines whether somebody exist in line or nor.
@@ -179,15 +180,24 @@ namespace McDonaldsWorkflow.Models
             TryToGatherOrder();
             GrabMissingMeals();
             GetMoney();
-            _restOrder.Clear();
         }
 
-        protected override void GoHome()
+        /// <summary>
+        ///     Performs next instuctions before current thread(employee) would be killed
+        /// </summary>
+        protected override void FinishedWork()
         {
-            Manager.GetTakings(Takings);
-            Console.WriteLine(@"{0} took his daily takings to manager {1}", _employeeName, Takings);
+            DissolveClients();
+            IsFinishedWork = true;
+            Console.WriteLine(@"Cashier{0} go to pub.", _employeeName);
+        }
 
-            Console.WriteLine(@"{0} is going home. Bye bye", _employeeName);
+        /// <summary>
+        ///     Clients are going away.
+        /// </summary>
+        private void DissolveClients()
+        {
+            _line.Clear();
         }
 
         #endregion

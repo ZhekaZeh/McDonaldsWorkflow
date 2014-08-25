@@ -17,6 +17,7 @@ namespace McDonaldsWorkflow.Models
         private List<ICook> _cooks;
         private bool _isEndOfDay;
         private Dictionary<MealTypes, double> _menu;
+        private Manager _manager;
 
         #endregion
 
@@ -60,6 +61,7 @@ namespace McDonaldsWorkflow.Models
         {
             InitializeMenuAndCooks();
             InitializeCashiers();
+            _manager = new Manager(_cashiers);
         }
 
         private void InitializeMenuAndCooks()
@@ -103,6 +105,24 @@ namespace McDonaldsWorkflow.Models
             currentClient.StandOnLine(_cashiers);
         }
 
+        private void TakeMoney()
+        {
+            _manager.GetTakings();
+            _manager.ShowTakings();
+        }
+
+        private void FinishedWork()
+        {
+            while (true)
+            {
+                var count = _cooks.Count(cook => cook.IsFinishedWork);
+                if (count == _cooks.Count) break;
+            }
+            TakeMoney();
+            
+            Console.WriteLine(@"McDonald's was closed!" + new String('-', 30));
+        }
+
         #endregion
 
         #region Public Methods
@@ -115,10 +135,12 @@ namespace McDonaldsWorkflow.Models
             Console.WriteLine(@"---Employees are preparing to work---");
             InitializeEmployees();
             Thread.Sleep(Constants.RestTimeBeforeWorkDayMs);
-            do
+
+            while (!IsEndOfDay)
             {
                 GenerateClients();
-            } while (!IsEndOfDay);
+            }
+            FinishedWork();
         }
 
         #endregion

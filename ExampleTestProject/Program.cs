@@ -46,11 +46,11 @@ namespace ExampleTestProject
             do
             {
                 info = Console.ReadKey();
-            } while (info.Key != ConsoleKey.Escape); // Press Escape for simulate EndOfTheDay
+            } while (info.Key != ConsoleKey.Escape); 
+            // Press Escape to simulate the EndOfTheDay
 
             McDonalds.Instance.EndTheDay();
-            Thread.Sleep(7000);
-            Manager.ShowTakings();
+            Console.WriteLine(@"App is closing...");
             Console.ReadLine();
 
             #endregion

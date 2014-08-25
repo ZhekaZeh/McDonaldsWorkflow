@@ -1,22 +1,27 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using McDonaldsWorkflow.Models.Interfaces;
 
 namespace McDonaldsWorkflow.Models
 {
-    public static class Manager
+    public class Manager
     {
         #region Private fields
 
-        private static double _allTakings;
-        private static readonly object _lock;
+        private double _allTakings;
+        private readonly object _lock;
+        private readonly List<ICashier> _cashiers;
 
         #endregion
 
-        #region Static Constructor
+        #region Constructor
 
-        static Manager()
+        public Manager(List<ICashier> cashiers)
         {
             _allTakings = 0.0;
             _lock = new object();
+            _cashiers = cashiers;
         }
 
         #endregion
@@ -26,18 +31,28 @@ namespace McDonaldsWorkflow.Models
         /// <summary>
         ///     Gets takings from all cashiers.
         /// </summary>
-        public static void GetTakings(double cashierTakings)
+        public void GetTakings()
         {
-            lock (_lock)
+            while (true)
             {
-                _allTakings += cashierTakings;
+                var count = 0;
+                foreach (var cashier in _cashiers.Where(cashier => cashier.IsFinishedWork))
+                {
+                    lock (_lock)
+                    {
+                        _allTakings += cashier.Takings;
+                        cashier.Takings = 0;
+                    }
+                    count++;
+                }
+                if (count == _cashiers.Count) break;
             }
         }
 
         /// <summary>
         ///     Shows McDonald's daily takings.
         /// </summary>
-        public static void ShowTakings()
+        public void ShowTakings()
         {
             Console.WriteLine(@"****************** McDonald's daily takings: {0} ******************", _allTakings);
         }
