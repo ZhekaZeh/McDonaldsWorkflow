@@ -1,4 +1,4 @@
-﻿namespace McDonaldsWorkflow.Models
+﻿namespace McDonaldsWorkflow.Models.Enums
 {
    public enum MealTypes
     {

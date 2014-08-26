@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using McDonaldsWorkflow.Models.Enums;
 using McDonaldsWorkflow.Models.Interfaces;
 
 namespace McDonaldsWorkflow.Models
@@ -26,10 +27,14 @@ namespace McDonaldsWorkflow.Models
 
         #region Constructor
 
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="Cashier" /> class.
+        /// </summary>
+        /// <param name="id">Cashier's Id.</param>
+        /// <param name="cooks">The list of McDonald's cooks.</param>
         public Cashier(int id, IEnumerable<ICook> cooks) : base(String.Format("Cashier #{0}", id))
         {
             Id = id;
-            IsFinishedWork = false;
             _cooks = cooks.ToDictionary(cook => cook.MealType);
             _line = new Queue<Client>();
             _takings = Constants.InitialTakings;
@@ -40,6 +45,9 @@ namespace McDonaldsWorkflow.Models
 
         #region Private methods
 
+        /// <summary>
+        ///     Grabs all missing meals as soon as possible.
+        /// </summary>
         private void GrabMissingMeals()
         {
             var changedEntries = new Dictionary<MealTypes, int>();
@@ -57,7 +65,7 @@ namespace McDonaldsWorkflow.Models
                     changedEntries.Add(orderEntry.Key, orderEntry.Value - takenCount);
                 }
 
-                //clean _restOrder collection from outside to avoid CollectionChanged exception
+                //clean _restOrder collection from outside to avoid CollectionChanged exception.
                 foreach (var changedEntry in changedEntries)
                 {
                     _restOrder[changedEntry.Key] = changedEntry.Value;
@@ -73,7 +81,7 @@ namespace McDonaldsWorkflow.Models
         }
 
         /// <summary>
-        ///     Takes cash from client and adds to takings
+        ///     Takes cash from client and adds to takings.
         /// </summary>
         private void GetMoney()
         {
@@ -84,6 +92,28 @@ namespace McDonaldsWorkflow.Models
             }
             Console.WriteLine(@"{0} take money: cash = {1}, takings = {2}. $$$$$$$$$$$$$$$$$$$$$$$$", _employeeName,
                 cash, _takings);
+            _currentClient = null;
+        }
+
+        /// <summary>
+        ///     Clients are going away.
+        /// </summary>
+        private void PutClientsOut()
+        {
+            lock (_lockObj)
+            {
+                _line.Clear();
+            }
+        }
+
+        /// <summary>
+        ///     Just waits until last client will not be serve.
+        /// </summary>
+        private void ServeLastClient()
+        {
+            while (_currentClient != null)
+            {
+            }
         }
 
         #endregion
@@ -91,7 +121,7 @@ namespace McDonaldsWorkflow.Models
         #region Public Methods
 
         /// <summary>
-        ///     Tries to gather next client's order
+        ///     Tries to gather next client's order.
         /// </summary>
         public void TryToGatherOrder()
         {
@@ -100,11 +130,10 @@ namespace McDonaldsWorkflow.Models
             foreach (var mealCountPair in _currentClient.Order)
             {
                 int takenCount;
-                //ICook cook = _cooks.Find(x => x.MealType == mealCountPair.Key);
 
                 ICook cook = _cooks[mealCountPair.Key];
 
-                Console.WriteLine(@"  Cashier {0} try to get {1} {2}........", Id, mealCountPair.Value,
+                Console.WriteLine(@"{0} try to get {1} {2}........", Id, mealCountPair.Value,
                     mealCountPair.Key);
 
                 if (!cook.TryGetMeals(mealCountPair.Value, out takenCount))
@@ -140,9 +169,9 @@ namespace McDonaldsWorkflow.Models
         }
 
         /// <summary>
-        ///     Adds client to queue
+        ///     Adds client to queue.
         /// </summary>
-        /// <param name="client"></param>
+        /// <param name="client">Client which stand in line</param>
         public void StandOnLine(Client client)
         {
             lock (_lockObj)
@@ -184,24 +213,13 @@ namespace McDonaldsWorkflow.Models
         }
 
         /// <summary>
-        ///     Performs next instuctions before current thread(employee) would be killed
+        ///     Performs next instuctions before current thread would be killed and employee(cashier) goes home.
         /// </summary>
-        protected override void FinishedWork()
+        protected override void GoHome()
         {
             PutClientsOut();
-            IsFinishedWork = true;
-            Console.WriteLine(@"Cashier{0} go to pub.", _employeeName);
-        }
-
-        /// <summary>
-        ///     Clients are going away.
-        /// </summary>
-        private void PutClientsOut()
-        {
-            lock (_lockObj)
-            {
-                _line.Clear();
-            }
+            ServeLastClient();
+            Console.WriteLine(@"{0} has finished work and is going home.", _employeeName);
         }
 
         #endregion

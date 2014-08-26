@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using McDonaldsWorkflow.Models.Enums;
 using McDonaldsWorkflow.Models.Interfaces;
 
 namespace McDonaldsWorkflow.Models
@@ -114,14 +115,12 @@ namespace McDonaldsWorkflow.Models
         }
 
         /// <summary>
-        ///     Performs next instuctions before current thread(employee) would be killed
+        ///     Cook goes home.
         /// </summary>
-        protected override void FinishedWork()
+        protected override void GoHome()
         {
-            while (HasSomethingToDo()) Work();
-            IsFinishedWork = true;
+            Console.WriteLine(@"{0} go home.", _employeeName);
         }
-
         #endregion
     }
 }

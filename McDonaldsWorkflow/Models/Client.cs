@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using McDonaldsWorkflow.Models.Enums;
 using McDonaldsWorkflow.Models.Interfaces;
 
 namespace McDonaldsWorkflow.Models
@@ -10,6 +11,7 @@ namespace McDonaldsWorkflow.Models
         #region Private fields
 
         private readonly Dictionary<MealTypes, double> _menu;
+        private readonly Random _random;
 
         #endregion
 
@@ -23,28 +25,41 @@ namespace McDonaldsWorkflow.Models
 
         #region Constructor
 
-        public Client(Dictionary<MealTypes, double> menu, int id)
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="Client" /> class.
+        /// </summary>
+        /// <param name="menu">McDonald's menu.</param>
+        public Client(Dictionary<MealTypes, double> menu)
         {
-            ClientId = id;
+            _random = new Random();
             _menu = menu;
             Order = new Dictionary<MealTypes, int>();
+            AssignId();
             GenerateOrder();
         }
 
         #endregion
 
-        #region Public methods
+        #region Private methods
 
         /// <summary>
-        ///     Generates random order appropriate to menu
+        ///     Assigns Id for current client.
         /// </summary>
-        public void GenerateOrder()
+        private void AssignId()
         {
-            var random = new Random();
+            ClientId = _random.Next(Constants.TheRangeOfIdValues);
+            Console.WriteLine(@"Client {0} went to McDonalds.", ClientId);
+        }
+
+        /// <summary>
+        ///     Generates random order appropriate to menu.
+        /// </summary>
+        private void GenerateOrder()
+        {
             for (int i = 0; i < _menu.Count; i++)
             {
                 var mealType = (MealTypes) i;
-                Order.Add(mealType, random.Next(Constants.MinMealCountClientOrder, Constants.MaxMealCountClientOrder));
+                Order.Add(mealType, _random.Next(Constants.MinMealCountClientOrder, Constants.MaxMealCountClientOrder));
             }
         }
 
@@ -56,7 +71,6 @@ namespace McDonaldsWorkflow.Models
         public void StandOnLine(List<ICashier> cashiers)
         {
             ICashier chosenCachier = cashiers.OrderBy(cashier => cashier.LineCount).First();
-
             chosenCachier.StandOnLine(this);
         }
 

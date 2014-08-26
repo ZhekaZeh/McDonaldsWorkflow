@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using McDonaldsWorkflow.Models.Enums;
 using McDonaldsWorkflow.Models.Interfaces;
 
 namespace McDonaldsWorkflow.Models
@@ -16,13 +17,16 @@ namespace McDonaldsWorkflow.Models
         private List<ICashier> _cashiers;
         private List<ICook> _cooks;
         private bool _isEndOfDay;
-        private Dictionary<MealTypes, double> _menu;
         private Manager _manager;
+        private Dictionary<MealTypes, double> _menu;
 
         #endregion
 
-        #region Constructor
+        #region Private Constructor
 
+        /// <summary>
+        ///     Has private constructor as part of Singelton Pattern. Accsess through 'Instanse' property.
+        /// </summary>
         private McDonalds()
         {
             _isEndOfDay = false;
@@ -34,7 +38,7 @@ namespace McDonaldsWorkflow.Models
         #region Properties
 
         /// <summary>
-        ///     Implemetation of Singelton pattern with tread-safe construction.
+        ///     Implementation of Singelton Pattern with tread-safe construction.
         /// </summary>
         public static ICompany Instance
         {
@@ -55,7 +59,7 @@ namespace McDonaldsWorkflow.Models
         #region Private Methods
 
         /// <summary>
-        ///     Initializes lists with Cashiers and Cooks (Emloyees). For test it creates only one cashier and one cook
+        ///     Initializes McDonald's employees.
         /// </summary>
         private void InitializeEmployees()
         {
@@ -64,6 +68,9 @@ namespace McDonaldsWorkflow.Models
             _manager = new Manager(_cashiers);
         }
 
+        /// <summary>
+        ///     Initializes list of cooks and menu items.
+        /// </summary>
         private void InitializeMenuAndCooks()
         {
             _cooks = new List<ICook>();
@@ -80,6 +87,9 @@ namespace McDonaldsWorkflow.Models
             }
         }
 
+        /// <summary>
+        ///     Initializes list of cashiers.
+        /// </summary>
         private void InitializeCashiers()
         {
             _cashiers = new List<ICashier>();
@@ -92,35 +102,29 @@ namespace McDonaldsWorkflow.Models
         }
 
         /// <summary>
-        ///     Logic for generate random clients
+        ///     Generates random clients.
         /// </summary>
         private void GenerateClients()
         {
-            var rnd = new Random();
-            int tempId = rnd.Next(100);
-            var currentClient = new Client(_menu, tempId);
-
-            Console.WriteLine(@"Client {0} went to McDonalds.", tempId);
+            var currentClient = new Client(_menu);
             Thread.Sleep(Constants.ClientGenerationTimeoutMs);
             currentClient.StandOnLine(_cashiers);
         }
 
-        private void TakeMoney()
+        /// <summary>
+        /// Takes McDonald's daily takings.
+        /// </summary>
+        private void TakeDailyTakings()
         {
             _manager.GetTakings();
-            _manager.ShowTakings();
         }
 
-        private void FinishedWork()
+        /// <summary>
+        ///     Shows McDonald's daily takings to Console.
+        /// </summary>
+        private void ShowDailyTakings()
         {
-            while (true)
-            {
-                var count = _cooks.Count(cook => cook.IsFinishedWork);
-                if (count == _cooks.Count) break;
-            }
-            TakeMoney();
-            
-            Console.WriteLine(@"McDonald's was closed!" + new String('-', 30));
+            _manager.ShowTakings();
         }
 
         #endregion
@@ -128,7 +132,7 @@ namespace McDonaldsWorkflow.Models
         #region Public Methods
 
         /// <summary>
-        ///     Starts McDonald's workflow
+        ///     Starts McDonald's workflow.
         /// </summary>
         public void StartWork()
         {
@@ -140,7 +144,6 @@ namespace McDonaldsWorkflow.Models
             {
                 GenerateClients();
             }
-            FinishedWork();
         }
 
         #endregion
@@ -164,18 +167,43 @@ namespace McDonaldsWorkflow.Models
         public void EndTheDay()
         {
             Console.WriteLine(@"McDonalds is closing...");
+
+            //The end of day for McDonald's.
             lock (_lockObj)
             {
                 _isEndOfDay = true;
-
-                //Get the list of all employees from cooks and cashiers
-                IEnumerable<IEmployee> emplyees = _cooks.Concat(_cashiers.Cast<IEmployee>());
-
-                foreach (IEmployee employee in emplyees)
-                {
-                    employee.IsEndOfDay = _isEndOfDay;
-                }
             }
+
+            //The end of day for cashiers.
+            foreach (Employee cashier in _cashiers.Cast<Employee>())
+            {
+                cashier.IsEndOfDay = true;
+            }
+
+            //Waiting for last clients at the cash desks.
+            while (true)
+            {
+                int count = _cashiers.Count(cashier => cashier.EmployeeState == EmployeeStates.WentHome);
+                if (count == _cashiers.Count) break;
+            }
+            TakeDailyTakings();
+
+            //The end of day for cooks.
+            foreach (Employee cook in _cooks.Cast<Employee>())
+            {
+                cook.IsEndOfDay = true;
+            }
+
+            //Waits until all cooks will finish their work.
+            while (true)
+            {
+                int count = _cooks.Count(cook => cook.EmployeeState == EmployeeStates.WentHome);
+                if (count == _cooks.Count) break;
+            }
+
+            ShowDailyTakings();
+
+            Console.WriteLine(@"McDonald's was closed!" + new String('-', 30));
         }
 
         #endregion

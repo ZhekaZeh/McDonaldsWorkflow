@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using McDonaldsWorkflow.Models.Interfaces;
 
 namespace McDonaldsWorkflow.Models
@@ -9,17 +8,21 @@ namespace McDonaldsWorkflow.Models
     {
         #region Private fields
 
-        private double _allTakings;
-        private readonly object _lock;
         private readonly List<ICashier> _cashiers;
+        private readonly object _lock;
+        private double _allTakings;
 
         #endregion
 
         #region Constructor
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Manager" /> class.
+        /// </summary>
+        /// <param name="cashiers">List of McDonald's cashiers.</param>
         public Manager(List<ICashier> cashiers)
         {
-            _allTakings = 0.0;
+            _allTakings = Constants.InitialTakings;
             _lock = new object();
             _cashiers = cashiers;
         }
@@ -33,19 +36,12 @@ namespace McDonaldsWorkflow.Models
         /// </summary>
         public void GetTakings()
         {
-            while (true)
+            foreach (var cashier in _cashiers)
             {
-                var count = 0;
-                foreach (var cashier in _cashiers.Where(cashier => cashier.IsFinishedWork))
+                lock (_lock)
                 {
-                    lock (_lock)
-                    {
-                        _allTakings += cashier.Takings;
-                        cashier.Takings = 0;
-                    }
-                    count++;
+                    _allTakings += cashier.Takings;
                 }
-                if (count == _cashiers.Count) break;
             }
         }
 

@@ -1,11 +1,12 @@
-﻿using System.Threading;
+﻿using McDonaldsWorkflow.Models.Enums;
 
 namespace McDonaldsWorkflow.Models.Interfaces
 {
-    public interface ICashier: IEmployee
+    public interface ICashier
     {
         int LineCount { get; }
-        double Takings { get; set; }
+        double Takings { get; }
         void StandOnLine(Client client);
+        EmployeeStates EmployeeState { get; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using McDonaldsWorkflow.Models.Enums;
 
 namespace McDonaldsWorkflow.Models
 {
@@ -8,15 +9,17 @@ namespace McDonaldsWorkflow.Models
         public const int CashierCount = 3;
         public const int MaxMealCount = 10;
         public const int InitialMealCount = 10;
+        public const int TheRangeOfIdValues = 100;
         public const int MinMealCountClientOrder = 0;
         public const int MaxMealCountClientOrder = 4;
 
         public const int MealGrabTimeMs = 500;
         public const int RestTimeBeforeWorkDayMs = 6000;
         public const int ClientGenerationTimeoutMs = 1500;
+        public const int CashierGrabMealRetryTimeoutMs = 2000;
 
         public const double InitialTakings = 0.0;
-        public const int CashierGrabMealRetryTimeoutMs = 2000;
+
 
         #region Dictionaries
 
