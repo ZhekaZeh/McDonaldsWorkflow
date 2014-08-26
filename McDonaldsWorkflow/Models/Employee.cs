@@ -15,7 +15,7 @@ namespace McDonaldsWorkflow.Models
         protected readonly AutoResetEvent _waitHandle;
         protected EmployeeStates _employeeState;
         protected bool _isEndOfDay;
-        public static readonly ILog log = LogManager.GetLogger(typeof(Employee)); // Log4net Manager for current class
+        private static readonly ILog log = LogManager.GetLogger(typeof(Employee)); // Log4net Manager for current class
 
         #endregion
 
