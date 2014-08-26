@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using log4net;
 using McDonaldsWorkflow.Models.Enums;
 
 namespace McDonaldsWorkflow.Models
@@ -14,6 +15,7 @@ namespace McDonaldsWorkflow.Models
         protected readonly AutoResetEvent _waitHandle;
         protected EmployeeStates _employeeState;
         protected bool _isEndOfDay;
+        public static readonly ILog log = LogManager.GetLogger(typeof(Employee)); // Log4net Manager for current class
 
         #endregion
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using log4net;
 using McDonaldsWorkflow.Models.Interfaces;
 
 namespace McDonaldsWorkflow.Models
@@ -11,6 +12,7 @@ namespace McDonaldsWorkflow.Models
         private readonly List<ICashier> _cashiers;
         private readonly object _lock;
         private double _allTakings;
+        public static readonly ILog log = LogManager.GetLogger(typeof(Manager)); // Log4net Manager for current class
 
         #endregion
 

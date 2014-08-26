@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using log4net;
 using McDonaldsWorkflow.Models.Enums;
 using McDonaldsWorkflow.Models.Interfaces;
 
@@ -13,6 +14,7 @@ namespace McDonaldsWorkflow.Models
         private readonly int _grabMealTime;
         private readonly int _maxMealCount;
         private int _mealCount;
+        public static readonly ILog log = LogManager.GetLogger(typeof(Cook)); // Log4net Manager for current class
 
         #endregion
 

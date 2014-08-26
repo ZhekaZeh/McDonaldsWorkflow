@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using log4net;
 using McDonaldsWorkflow.Models.Enums;
 using McDonaldsWorkflow.Models.Interfaces;
 
@@ -19,6 +20,7 @@ namespace McDonaldsWorkflow.Models
         private bool _isEndOfDay;
         private Manager _manager;
         private Dictionary<MealTypes, double> _menu;
+        public static readonly ILog log = LogManager.GetLogger(typeof(McDonalds)); // Log4net Manager for current class
 
         #endregion
 
@@ -136,7 +138,12 @@ namespace McDonaldsWorkflow.Models
         /// </summary>
         public void StartWork()
         {
-            Console.WriteLine(@"---Employees are preparing to work---");
+            #region log4net
+
+            log.Info("McDonalds start to work.");
+
+            #endregion
+
             InitializeEmployees();
             Thread.Sleep(Constants.RestTimeBeforeWorkDayMs);
 

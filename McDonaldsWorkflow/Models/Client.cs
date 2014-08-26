@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using log4net;
 using McDonaldsWorkflow.Models.Enums;
 using McDonaldsWorkflow.Models.Interfaces;
 
@@ -12,6 +13,7 @@ namespace McDonaldsWorkflow.Models
 
         private readonly Dictionary<MealTypes, double> _menu;
         private readonly Random _random;
+        public static readonly ILog log = LogManager.GetLogger(typeof(Client)); // Log4net Manager for current class
 
         #endregion
 

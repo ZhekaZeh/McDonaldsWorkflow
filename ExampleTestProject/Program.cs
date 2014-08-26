@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using log4net.Config;
 using McDonaldsWorkflow.Models;
 
 namespace ExampleTestProject
@@ -13,15 +14,19 @@ namespace ExampleTestProject
         {
             #region Test
 
+            //Configures log4net. 
+            XmlConfigurator.Configure(); 
+
             ConsoleKeyInfo info;
             ThreadPool.QueueUserWorkItem(obj => McDonalds.Instance.StartWork());
+
             do
             {
                 info = Console.ReadKey();
             } while (info.Key != ConsoleKey.Escape); 
 
             McDonalds.Instance.EndTheDay();
-            Console.WriteLine(@"App is closing. Press any key to continue.");
+            Console.WriteLine(@"App is closing. Press Enter to continue.");
             Console.ReadLine();
 
             #endregion
