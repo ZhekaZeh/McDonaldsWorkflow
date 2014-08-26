@@ -68,7 +68,7 @@ namespace McDonaldsWorkflow.Models
         /// </summary>
         public void DoWork()
         {
-            while (!IsEndOfDay && !IsFinishedWork)
+            while (!IsEndOfDay)
             {
                 if (HasSomethingToDo())
                 {

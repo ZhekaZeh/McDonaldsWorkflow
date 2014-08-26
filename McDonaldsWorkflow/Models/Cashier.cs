@@ -12,7 +12,6 @@ namespace McDonaldsWorkflow.Models
 
         private readonly Dictionary<MealTypes, ICook> _cooks;
         private readonly Queue<Client> _line;
-        private readonly object _lock;
         private readonly Dictionary<MealTypes, int> _restOrder;
         private Client _currentClient;
         private double _takings;
@@ -27,12 +26,11 @@ namespace McDonaldsWorkflow.Models
 
         #region Constructor
 
-        public Cashier(int id, List<ICook> cooks) : base(String.Format("Cashier #{0}", id))
+        public Cashier(int id, IEnumerable<ICook> cooks) : base(String.Format("Cashier #{0}", id))
         {
             Id = id;
             IsFinishedWork = false;
             _cooks = cooks.ToDictionary(cook => cook.MealType);
-            _lock = new object();
             _line = new Queue<Client>();
             _takings = Constants.InitialTakings;
             _restOrder = new Dictionary<MealTypes, int>();
@@ -149,7 +147,10 @@ namespace McDonaldsWorkflow.Models
         {
             lock (_lockObj)
             {
-                if (!IsEndOfDay) _line.Enqueue(client);
+                if (!IsEndOfDay)
+                {
+                    _line.Enqueue(client);
+                }
             }
 
             Console.WriteLine(@"Client{0} stand in line to {1}", client.ClientId, _employeeName);
@@ -166,7 +167,7 @@ namespace McDonaldsWorkflow.Models
         /// <returns>true if somebody exist, false otherwise</returns>
         protected override bool HasSomethingToDo()
         {
-            lock (_lock)
+            lock (_lockObj)
             {
                 return LineCount > 0;
             }
@@ -187,7 +188,7 @@ namespace McDonaldsWorkflow.Models
         /// </summary>
         protected override void FinishedWork()
         {
-            DissolveClients();
+            PutClientsOut();
             IsFinishedWork = true;
             Console.WriteLine(@"Cashier{0} go to pub.", _employeeName);
         }
@@ -195,9 +196,12 @@ namespace McDonaldsWorkflow.Models
         /// <summary>
         ///     Clients are going away.
         /// </summary>
-        private void DissolveClients()
+        private void PutClientsOut()
         {
-            _line.Clear();
+            lock (_lockObj)
+            {
+                _line.Clear();
+            }
         }
 
         #endregion
