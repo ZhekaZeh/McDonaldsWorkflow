@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using log4net;
 using McDonaldsWorkflow.Models.Enums;
 using McDonaldsWorkflow.Models.Interfaces;
@@ -17,6 +18,8 @@ namespace McDonaldsWorkflow.Models
         private readonly object _lockObj;
         private List<ICashier> _cashiers;
         private List<ICook> _cooks;
+        private Task[] _cooksTasksArray;
+        private Task[] _cashiersTasksArray;
         private bool _isEndOfDay;
         private Manager _manager;
         private Dictionary<MealTypes, double> _menu;
@@ -75,9 +78,11 @@ namespace McDonaldsWorkflow.Models
         /// </summary>
         private void InitializeMenuAndCooks()
         {
-            _cooks = new List<ICook>();
-            _menu = new Dictionary<MealTypes, double>();
             int menuSize = Math.Min(Constants.MenuSize, Enum.GetNames(typeof (MealTypes)).Length);
+            _cooks = new List<ICook>();
+            _cooksTasksArray = new Task[menuSize];
+            _menu = new Dictionary<MealTypes, double>();
+            
 
             for (int i = 0; i < menuSize; i++)
             {
@@ -85,7 +90,9 @@ namespace McDonaldsWorkflow.Models
                 var cook = new Cook(mealType, Constants.CookingTimesMs[mealType]);
                 _cooks.Add(cook);
                 _menu.Add(mealType, Constants.PriceList[mealType]);
-                ThreadPool.QueueUserWorkItem(obj => cook.DoWork());
+
+                _cooksTasksArray[i] = Task.Factory.StartNew(cook.DoWork);
+                //ThreadPool.QueueUserWorkItem(obj => cook.DoWork());
             }
         }
 
@@ -95,11 +102,13 @@ namespace McDonaldsWorkflow.Models
         private void InitializeCashiers()
         {
             _cashiers = new List<ICashier>();
-            for (int i = 1; i <= Constants.CashierCount; i++)
+            _cashiersTasksArray = new Task[Constants.CashierCount];
+
+            for (int i = 0; i < Constants.CashierCount; i++)
             {
-                var cashier = new Cashier(i, _cooks);
+                var cashier = new Cashier(i + 1, _cooks);
                 _cashiers.Add(cashier);
-                ThreadPool.QueueUserWorkItem(obj => cashier.DoWork());
+                _cashiersTasksArray[i] = Task.Factory.StartNew(cashier.DoWork);
             }
         }
 
@@ -138,7 +147,7 @@ namespace McDonaldsWorkflow.Models
         /// </summary>
         public void StartWork()
         {
-            #region log4net
+            #region log4net[info]
 
             log.Info("McDonalds start to work.");
 
@@ -173,7 +182,12 @@ namespace McDonaldsWorkflow.Models
         /// </summary>
         public void EndTheDay()
         {
-            Console.WriteLine(@"McDonalds is closing...");
+
+            #region log4net[Debug]
+
+            log.Debug("McDonald's has finished work.");
+
+            #endregion
 
             //The end of day for McDonald's.
             lock (_lockObj)
@@ -181,36 +195,34 @@ namespace McDonaldsWorkflow.Models
                 _isEndOfDay = true;
             }
 
-            //The end of day for cashiers.
+            //End of the day for cashiers.
             foreach (Employee cashier in _cashiers.Cast<Employee>())
             {
                 cashier.IsEndOfDay = true;
             }
 
             //Waiting for last clients at the cash desks.
-            while (true)
-            {
-                int count = _cashiers.Count(cashier => cashier.EmployeeState == EmployeeStates.WentHome);
-                if (count == _cashiers.Count) break;
-            }
-            TakeDailyTakings();
+            Task.WaitAll(_cashiersTasksArray);
 
-            //The end of day for cooks.
-            foreach (Employee cook in _cooks.Cast<Employee>())
+            //End of the day for cooks.
+            foreach (var cook in _cooks.Cast<Employee>())
             {
                 cook.IsEndOfDay = true;
             }
 
+            TakeDailyTakings();
+            
             //Waits until all cooks will finish their work.
-            while (true)
-            {
-                int count = _cooks.Count(cook => cook.EmployeeState == EmployeeStates.WentHome);
-                if (count == _cooks.Count) break;
-            }
+            Task.WaitAll(_cooksTasksArray);
 
             ShowDailyTakings();
 
-            Console.WriteLine(@"McDonald's was closed!" + new String('-', 30));
+            #region log4net[info]
+
+            log.Info("McDonald's was closed.");
+
+            #endregion
+
         }
 
         #endregion

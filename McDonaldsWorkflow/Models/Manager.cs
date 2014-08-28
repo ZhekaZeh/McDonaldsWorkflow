@@ -52,7 +52,7 @@ namespace McDonaldsWorkflow.Models
         /// </summary>
         public void ShowTakings()
         {
-            Console.WriteLine(@"****************** McDonald's daily takings: {0} ******************", _allTakings);
+            Console.WriteLine(@"McDonald's daily takings: {0}", _allTakings);
         }
 
         #endregion

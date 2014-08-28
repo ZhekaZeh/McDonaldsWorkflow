@@ -129,14 +129,18 @@ namespace McDonaldsWorkflow.Models
         {
             _currentClient = _line.Dequeue();
 
-            foreach (var mealCountPair in _currentClient.Order)
+            foreach (var mealCountPair in _currentClient.Order.Where(order => order.Value > 0))
             {
                 int takenCount;
 
                 ICook cook = _cooks[mealCountPair.Key];
 
-                Console.WriteLine(@"{0} try to get {1} {2}........", Id, mealCountPair.Value,
-                    mealCountPair.Key);
+                #region log4net[debug]
+
+                log.Debug(Id + " try to get " + mealCountPair.Value + " " + mealCountPair.Key);
+
+                #endregion
+
 
                 if (!cook.TryGetMeals(mealCountPair.Value, out takenCount))
                     _restOrder.Add(mealCountPair.Key, mealCountPair.Value - takenCount);

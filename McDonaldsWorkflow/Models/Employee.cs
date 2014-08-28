@@ -121,8 +121,8 @@ namespace McDonaldsWorkflow.Models
                     Rest();
                 }
             }
-            GoHome();
             _employeeState = EmployeeStates.WentHome;
+            GoHome();
         }
 
         #endregion
